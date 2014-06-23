@@ -2,7 +2,12 @@
     "name":"AC Scrape",
     "version": "1.0",
     "description": "Scrapes AircraftClubs.com calendars and exports them to Google Calendar.",
-    "background": { "scripts": ["background.js"] },
+    "background": { 
+        "scripts": [
+            "background.js"
+        ],
+        "persistent":false
+    },
 
     "page_action" :{
         "default_icon" : "icon-128.png",
@@ -33,9 +38,11 @@
     "permissions" : [
         "tabs",
         "*://*.aircraftclubs.com/*",
+        "*://apis.google.com/*",
         "unlimitedStorage",
         "storage"
     ],
+    "content_security_policy": "script-src 'self' https://apis.google.com; object-src 'self'",
 
     "manifest_version": 2
 }

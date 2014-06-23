@@ -46,7 +46,7 @@ function scrape(){
     return oResource;
 };
 
-chrome.extension.onRequest.addListener( function(request, sender, sendResponse ){
+chrome.extension.onMessage.addListener( function(request, sender, sendResponse ){
     switch( request.command ){
     case "scrape":
         var data = scrape();
