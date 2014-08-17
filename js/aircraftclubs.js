@@ -35,6 +35,13 @@ function onReady(){
 };
 
 function steve(){
-    gapi.client.setApiKey(api_key);
-    gapi.client.load('calendar', 'v3', onReady);
+    debugger;
+    console.log('steve');
+    //gapi.client.setApiKey(api_key);
+    //gapi.client.load('calendar', 'v3', onReady);
 };
+window.addEventListener('load',function(){
+    document.
+
+    <!--<script src="https://apis.google.com/js/client.js?onload=steve"></script>-->
+});
