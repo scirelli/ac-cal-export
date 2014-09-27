@@ -4,7 +4,7 @@ function checkForValidUrl(tabId, changeInfo, tab) {
   if (tab.url.indexOf('aircraftclubs.com') > -1) {
     chrome.pageAction.setPopup({
         tabId:tabId,
-        popup:'aircraftclubs.html'
+        popup:'aircraftclubs_popup.html'
     });
     // ... show the page action.
     chrome.pageAction.show(tabId);

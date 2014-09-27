@@ -2,6 +2,9 @@
     "name":"AC Scrape",
     "version": "1.0",
     "description": "Scrapes AircraftClubs.com calendars and exports them to Google Calendar.",
+    "manifest_version": 2,
+    "minimum_chrome_version": "29",
+
     "background": { 
         "scripts": [
             "background.js"
@@ -12,7 +15,7 @@
     "page_action" :{
         "default_icon" : "icon-128.png",
         "default_title" : "To Google Calendar",
-        "default_popup":"aircraftclubs.html"
+        "default_popup":"aircraftclubs_popup.html"
     },
 
     "icons" : {
@@ -34,15 +37,19 @@
             ]
         }
     ],
-
+    "oauth2": {
+        "client_id": "920486903505-l7qd9c103n4qk20f31fl8qin0302icks.apps.googleusercontent.com",
+        "scopes": [
+            "https://www.googleapis.com/auth/calendar"
+        ]
+    },
     "permissions" : [
         "tabs",
         "*://*.aircraftclubs.com/*",
         "*://apis.google.com/*",
         "unlimitedStorage",
-        "storage"
+        "storage",
+         "identity"
     ],
-    "content_security_policy": "script-src 'self' https://apis.google.com https://oauth.googleusercontent.com https://accounts.google.com; object-src 'self'",
-
-    "manifest_version": 2
+    "content_security_policy": "script-src 'self' https://apis.google.com https://oauth.googleusercontent.com https://accounts.google.com https://ssl.gstatic.com https://www.googleapis.com; object-src 'self'"
 }
