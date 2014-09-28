@@ -1,6 +1,7 @@
-var client_id  = '920486903505-r6bkir5pv6td8iqh84rbu1k0gngv0s8n.apps.googleusercontent.com',
-    api_key    = 'AIzaSyBnsVaei45mMVPHAlrdxr6jVKnj2nBeaYc',
-    token      = '';
+var client_id        = '920486903505-r6bkir5pv6td8iqh84rbu1k0gngv0s8n.apps.googleusercontent.com',
+    api_key          = 'AIzaSyBnsVaei45mMVPHAlrdxr6jVKnj2nBeaYc',
+    //              https://www.googleapis.com/apiName/apiVersion/resourcePath?parameters            
+    sBaseCalendarURL = 'https://www.googleapis.com/calendar/v3/users/me/';
 
 !function(){
 "use strict";
@@ -27,13 +28,43 @@ var client_id  = '920486903505-r6bkir5pv6td8iqh84rbu1k0gngv0s8n.apps.googleuserc
     });
 }();
 
-function onReady(){
-    var request = gapi.client.calendar.calendarList.list({});
-    request.execute(function( jsonResponse, rawResponse ){
-        console.log(jsonResponse);
-        debugger;
-    });
-};
+    // @corecode_begin getProtectedData
+function xhrWithAuth(method, url, interactive, callback){
+    var access_token;
+
+    var retry = true;
+
+    getToken();
+
+    function getToken() {
+        chrome.identity.getAuthToken({ interactive: interactive }, function(token) {
+            if (chrome.runtime.lastError) {
+                callback(chrome.runtime.lastError);
+                return;
+            }
+
+            access_token = token;
+            requestStart();
+        });
+    }
+
+    function requestStart() {
+        var xhr = new XMLHttpRequest();
+        xhr.open(method, url);
+        xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+        xhr.onload = requestComplete;
+        xhr.send();
+    }
+
+    function requestComplete() {
+        if (this.status == 401 && retry) {
+            retry = false;
+            chrome.identity.removeCachedAuthToken({ token: access_token }, getToken);
+        } else {
+            callback(null, this.status, this.response);
+        }
+    }
+}
 
 function auth() {
     var config = {
@@ -45,25 +76,9 @@ function auth() {
         console.log(gapi.auth.getToken());
     });
 }
-function init(){
-    chrome.identity.getAuthToken({ 'interactive': true }, function(token) {
-        // Use the token.
-        debugger;
-        console.log(token);
-        gapi.auth.setToken(token);
-        gapi.client.setApiKey(api_key);
-        gapi.client.load('calendar', 'v3', onReady);
-    });
-    //auth();
-    //gapi.client.setApiKey(api_key);
-    //gapi.client.load('calendar', 'v3', onReady);
-};
 
 document.getElementById('run').addEventListener('click',function(){
-    var script = document.createElement('script');
-
-    console.log('before init called');
-
-    script.src = "https://apis.google.com/js/client.js?onload=init";
-    (document.head||document.documentElement).appendChild(script);
+    xhrWithAuth( 'GET', sBaseCalendarURL + 'calendarList', true, function(error, status, response){
+        debugger;
+    });
 });
