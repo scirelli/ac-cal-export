@@ -9,8 +9,9 @@ var client_id        = '920486903505-r6bkir5pv6td8iqh84rbu1k0gngv0s8n.apps.googl
 
     oScrapeBtn.addEventListener('click',function(e){
         chrome.tabs.getSelected(null, function(tab) {
-            chrome.tabs.sendMessage(tab.id, {command: "scrape"}, function(response) {
+            chrome.tabs.sendMessage(tab.id, {command: "scrape", sAircraftId:915, sInstructorId:0 }, function(response) {
                 console.log(response);
+                debugger;
                 //window.close();
             });
         });

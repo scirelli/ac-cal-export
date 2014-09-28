@@ -31,7 +31,10 @@
                 "*://*.aircraftclubs.com/*"
             ],
             "js": [
-                "js/contentscript/main.js"
+                "js/contentscript/main.js",
+                "js/lib/q.js",
+                "js/lib/extras-string.js",
+                "js/lib/jquery-2.1.1.min.js"
             ],
             "css":[
             ]
