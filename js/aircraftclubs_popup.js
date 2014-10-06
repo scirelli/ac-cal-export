@@ -30,7 +30,7 @@ var client_id        = '920486903505-r6bkir5pv6td8iqh84rbu1k0gngv0s8n.apps.googl
 }();
 
     // @corecode_begin getProtectedData
-function xhrWithAuth(method, url, interactive, callback){
+function xhrWithAuth( method, url, interactive ){
     var access_token;
 
     var retry = true;

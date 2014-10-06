@@ -28,7 +28,7 @@
     "content_scripts": [
         {
             "matches": [
-                "*://*.aircraftclubs.com/*"
+                "*://*.aircraftclubs.com/pages/view/*"
             ],
             "js": [
                 "js/contentscript/main.js",

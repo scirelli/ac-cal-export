@@ -1,5 +1,85 @@
 var acc = function( acc ){
 "use strict";
+    var oPlanes      = {},
+        oInstructors = {},
+        oEquipment   = {},
+        ePlanes      = document.getElementById('aircraftSelect'),
+        eInstructors = document.getElementById('instructorSelect'),
+        eEquipment   = document.getElementById('equipmentSelect');
+   
+    function buildPlaneListFromSelectBox( oSelectBoxElm, oList ){
+        var aOpts = oSelectBoxElm.querySelectorAll('option');
+        
+        for( var i=0,l=aOpts.length,opt=null,id='',txt='',tailNumber='',callSign=''; i<l; i++ ){
+            opt = aOpts[i];
+            id  = opt.value;
+            if( id != "0" ){
+                txt = opt.text.split('-');
+                if( txt.length && txt.length >= 2 ){
+                    tailNumber = txt[1].trim();
+                    callSign   = txt[0].trim();
+                }else{
+                    tailNumber = txt[0].trim();
+                    callSign   = tailNumber;
+                }
+                oList[id] = {
+                    id:opt.value,
+                    name:opt.text,
+                    tailNumber:tailNumber,
+                    callSign:callSign
+                };
+            }
+        }
+    };
+
+    function buildInstructorListFromSelectBox( oSelectBoxElm, oList ){
+        var aOpts = oSelectBoxElm.querySelectorAll('option');
+        
+        for( var i=0,l=aOpts.length,opt=null,id='',txt='',name='',callSign=''; i<l; i++ ){
+            opt = aOpts[i];
+            id  = opt.value;
+            if( id != "0" ){
+                txt = opt.text.replace(/\)/g,'').split('(');
+                if( txt.length && txt.length >= 3 ){
+                    name       = txt[0].trim();
+                    callSign   = txt[2].trim();
+                }else if( txt.length && txt.length >= 2 ){
+                    name       = txt[0].trim();
+                    callSign   = '';
+                }else{
+                    name       = '';
+                    callSign   = '';
+                }
+                oList[id] = {
+                    id:opt.value,
+                    name:name,
+                    callSign:callSign
+                };
+            }
+        }
+    };
+
+    function buildEquipmentListFromSelectBox( oSelectBoxElm, oList ){
+        var aOpts = oSelectBoxElm.querySelectorAll('option');
+        
+        for( var i=0,l=aOpts.length,opt=null,id='',txt='',name='',callSign=''; i<l; i++ ){
+            opt = aOpts[i];
+            id  = opt.value;
+            if( id != "0" ){
+                txt = opt.text.split('-');
+                if( txt.length && txt.length >= 2 ){
+                    name       = txt[0].trim();
+                    callSign   = txt[1].trim();
+                }
+                oList[id] = {
+                    id:opt.value,
+                    name:name,
+                    callSign:callSign
+                };
+            }
+        }
+    };
+
     function scrape(){
     "use strict";
         var oBottomframe    = document.querySelector('frameset frame[name="bottomframe"]').contentDocument,
@@ -48,12 +128,13 @@ var acc = function( acc ){
         return oResource;
     };
 
-    function scrapeNew( sAircraftId, sInstructorId ){
-        var url         = 'https://new.aircraftclubs.com/functions/booking/getBookingsForCalendar.php?p=&a={{aircraft}}&i={{instructor}}&e=0&f=a&start=1409457600&end=1413086400&_={{date}}',
+    function scrapeNew( sAircraftId, sInstructorId, sEquipmentId ){
+        var url         = 'https://new.aircraftclubs.com/functions/booking/getBookingsForCalendar.php?p=&a={{aircraft}}&i={{instructor}}&e={{equipment}}&f=a&start=1409457600&end=1413086400&_={{date}}',
             dDate       = new Date();
 
         sAircraftId   = sAircraftId   || 0;
         sInstructorId = sInstructorId || 0;
+        sEquipmentId  = sEquipmentId  || 0;
         
         function makeRequest( url ){
             var xhr      = new XMLHttpRequest(),
@@ -79,6 +160,7 @@ var acc = function( acc ){
         return makeRequest( url.mustache({
             aircraft:sAircraftId,
             instructor:sInstructorId,
+            equipment:sEquipmentId,
             date:dDate.getTime()
         })).then(
             function( response ){
@@ -121,11 +203,88 @@ var acc = function( acc ){
         );
     };
 
+    function buildLists(){
+        buildPlaneListFromSelectBox( ePlanes, oPlanes );
+        buildInstructorListFromSelectBox( eInstructors, oInstructors );
+        buildEquipmentListFromSelectBox( eEquipment, oEquipment );
+    };
+    
+    function amendScrape( data ){
+        return data;
+    };
+
+    function startScrape(e){
+        var sAircraftId   = ePlanes.value || 0,
+            sInstructorId = eInstructors.value || 0,
+            sEquipmentId  = eEquipment.value || 0;
+        
+        scrapeNew( sAircraftId, sInstructorId, sEquipmentId ).then(
+            amendScrape,
+            function( reject ){
+                console.log('rejected.');
+                console.log(reject);
+                chrome.runtime.sendMessage({success:false, data:reject}, function(response){
+                    console.log(response);
+                });
+            }
+        ).then(
+            function( data ){
+                var msg = {};
+                if( data.error ){
+                    msg = {success:false, data:data};
+                }else{
+                    msg = {success:true, data:data};
+                }
+                chrome.runtime.sendMessage( msg, function(response){
+                    console.log(response);
+                });
+            }
+        ).done();
+        e.preventDefault();
+        return false;
+    };
+
+    function insertToolbarCalIcon(){
+        var div = document.createElement('div');
+        div.innerHTML = ' <span class="glyphicons calendar" style="font-size:20px;color:#444;padding-bottom:3px"></span> <br> Calendar Export ';
+        
+        div.id = 'exportCalViewAction';
+        div.classList.add('yourActionsItem');
+        div.classList.add('selected');
+        div.style.float = 'left';
+        div.style.padding = '7px 0 0 0';
+        div.addEventListener( 'click', startScrape );
+        document.body.querySelector('#toolbar').appendChild(div);
+        document.body.querySelector('#toolbarMain').style.minHeight = '64px';
+    };
+
+    function insertQuickLinkCalIcon(){
+        var a   = document.createElement('a');
+
+        a.href = '#';
+        a.classList.add('headerQuicklink');
+        a.setAttribute('data-toggle', 'tooltip');
+        a.setAttribute('data-placement', 'bottom');
+        a.setAttribute('title', '');
+        a.setAttribute('data-original-title','Export Calendar');
+        a.innerHTML = '<span class="glyphicons calendar"></span>';
+        a.addEventListener( 'click', startScrape );
+        a.style.color = 'red';
+        document.body.querySelector('.boxHeader span').appendChild(a);
+    };
+
     return {
-        scrape:scrapeNew
+        insertQuickLinkCalIcon:insertQuickLinkCalIcon,
+        insertToolbarCalIcon:insertToolbarCalIcon,
+        buildLists:buildLists
     };
 }( acc );
 
+//Start
+acc.insertToolbarCalIcon();
+acc.buildLists();
+
+/*   Not used
 chrome.extension.onMessage.addListener( function(request, sender, sendResponse ){
     switch( request.command ){
     case "scrape":
@@ -150,3 +309,4 @@ chrome.extension.onMessage.addListener( function(request, sender, sendResponse )
     }
     return true;
 });
+*/
