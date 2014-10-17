@@ -181,8 +181,8 @@ var acc = function( acc ){
                         instructor = span.querySelector('.headset')? true : false;
 
                         obj.push({
-                            dStart: new Date(itm.start),
-                            dEnd:   new Date(itm.end),
+                            //dStart: new Date(itm.start), //For some reason this doesn't get sent to the background page. It comes through as an object not a date.
+                            //dEnd:   new Date(itm.end),
                             start:  itm.start,
                             end:    itm.end,
                             id:     itm.id,

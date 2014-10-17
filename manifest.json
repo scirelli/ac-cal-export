@@ -1,12 +1,14 @@
 {
     "name":"AC Scrape",
-    "version": "1.0",
+    "version": "0.1",
     "description": "Scrapes AircraftClubs.com calendars and exports them to Google Calendar.",
     "manifest_version": 2,
     "minimum_chrome_version": "29",
 
     "background": { 
         "scripts": [
+            "js/lib/q.js",
+            "js/lib/date.js",
             "background.js"
         ],
         "persistent":false
@@ -33,6 +35,7 @@
             "js": [
                 "js/contentscript/main.js",
                 "js/lib/q.js",
+                "js/lib/date.js",
                 "js/lib/extras-string.js",
                 "js/lib/jquery-2.1.1.min.js"
             ],
