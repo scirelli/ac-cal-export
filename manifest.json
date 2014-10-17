@@ -9,6 +9,7 @@
         "scripts": [
             "js/lib/q.js",
             "js/lib/date.js",
+            "js/lib/md5.js",
             "background.js"
         ],
         "persistent":false
@@ -36,6 +37,7 @@
                 "js/contentscript/main.js",
                 "js/lib/q.js",
                 "js/lib/date.js",
+                "js/lib/md5.js",
                 "js/lib/extras-string.js",
                 "js/lib/jquery-2.1.1.min.js"
             ],

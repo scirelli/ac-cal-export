@@ -31,9 +31,10 @@ var client_id        = '920486903505-r6bkir5pv6td8iqh84rbu1k0gngv0s8n.apps.googl
 
 // @corecode_begin getProtectedData
 function xhrWithAuth( method, url, interactive, oData, callback ){
-    var access_token = null,
-        retry        = true,
-        deferred     = Q.defer();
+    var access_token  = null,
+        retry         = true,
+        deferred      = Q.defer(),
+        batchBoundary = 'batch_foobarbaz';
 
     callback = callback || function(){};
 
@@ -50,20 +51,28 @@ function xhrWithAuth( method, url, interactive, oData, callback ){
             access_token = token;
             requestStart();
         });
-    }
+    };
 
     function requestStart() {
-        var xhr = new XMLHttpRequest();
+        var xhr   = new XMLHttpRequest(),
+            sData = '';
+
         xhr.open(method, url);
         xhr.onload = requestComplete;
         xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
-        if( oData ){
+
+        if( oData.length ){//Considerig it a batch request
+            xhr.setRequestHeader("Content-Type", "multipart/mixed; boundary=" + batchBoundary);
+            sData = buildBatchRequest( oData );
+            xhr.setRequestHeader("Content-Length", sData.length);
+            xhr.send( sData );
+        }else if( oData ){//
             xhr.setRequestHeader("Content-Type", "application/json;");//charset=UTF-8
             xhr.send( JSON.stringify(oData) );
         }else{
             xhr.send();
         }
-    }
+    };
 
     function requestComplete() {
         if (this.status == 401 && retry) {
@@ -73,8 +82,11 @@ function xhrWithAuth( method, url, interactive, oData, callback ){
             callback(null, this.status, this.response);
             deferred.resolve( { status:this.status, response:this.response } );
         }
-    }
-
+    };
+    
+    function buildBatchRequest( aData ){
+        return '';
+    };
     return deferred.promise;
 };
 
@@ -147,13 +159,37 @@ Calendar.prototype = {
 function Calendars(){
     this.sBaseCalendarURL = 'https://www.googleapis.com/calendar/v3/';
     this.sCalendarsURL    = this.sBaseCalendarURL + 'calendars/';
+    this.sBatchURL    = this.sCalendarsURL + 'batch/';
+    this.aClear  = [];
+    this.aDelete = [];
+    this.aGet    = [];
+    this.aInsert = [];
+    this.aPatch  = [];
+    this.aUpdate = [];
 }
 calendars.prototype = {
+    execute:function(){
+        var aAll = Array.prototpye.concat.call( this.aClear, this.aDelete, this.aGet, this.aInsert, this.aPatch, this.aUpdate );
+        debugger;
+    },
     //Clears a primary calendar. This operation deletes all data associated with the primary calendar of an account and cannot be undone
     clear:function( primary ){
         var sURL = this.sCalendarsURL;
         sURL += 'primary/clear';
-
+        
+        if( primary ){
+            this.aClear.push(
+                {
+                    method:'POST',
+                    url:sURL,
+                    headers:[
+                        'Content-Type':'application/http',
+                        'Content-ID':md5(sURL)
+                    ]
+                }
+            );
+        }
+        /*
         return xhrWithAuth( 'POST', sURL, true ).then(
             function( resolved ){
                 if( resolved.status == 200 || resolved.status == 204 ){
@@ -166,12 +202,26 @@ calendars.prototype = {
                 return error;
             }
         );
+        */
+        return this;
     },
     //Deletes a secondary calendar
     delete:function( id ){
         var sURL = this.sCalendarsURL;
         sURL += id;
-
+        
+        if( id ){
+        this.aDelete.push(
+            {
+                method:'DELETE',
+                url:sURL,
+                headers:[
+                    'Content-Type':'application/http',
+                    'Content-ID':md5(sURL)
+                ]
+            }
+        );
+        }
         return xhrWithAuth( 'DELETE', sURL, true ).then(
             function( resolved ){
                 if( resolved.status == 200 || resolved.status == 204 ){
@@ -184,12 +234,25 @@ calendars.prototype = {
                 return error;
             }
         );
+        return this;
     },
     //Returns metadata for a calendar
     get:function( id ){
         var sURL = this.sCalendarsURL;
         sURL += id;
-
+        if(id){ 
+            this.aGet.push(
+                {
+                    method:'GET',
+                    url:sURL,
+                    headers:[
+                        'Content-Type':'application/http',
+                        'Content-ID':md5(sURL)
+                    ]
+                }
+            );
+        }
+        /*
         return xhrWithAuth( 'GET', sURL, true ).then(
             function( resolved ){
                 if( resolved.status == 200 ){
@@ -202,17 +265,29 @@ calendars.prototype = {
                 return error;
             }
         );
+        */
+        return this;
     },
-    insert:function( sSummary, sDescription ){
-        var sURL  = this.sCalendarsURL,
-            oData = {};
-        if( sSummary ){
-            oData.summary = sSummary;
+    insert:function( oCalendar ){
+        var sURL  = this.sCalendarsURL;
+        
+        if( oCalendar ){
+            var body = JSON.stringify(oCalendar);
+            this.aInsert.push(
+                {
+                    method:'POST',
+                    url:sURL,
+                    body:body,
+                    headers:[
+                        'Content-Type':'application/json',
+                        'Content-Length':body.length,
+                        'Content-ID':md5(sURL + body)
+                    ]
+                }
+            );
         }
-        if( sDescription ){
-            oData.description = sDescription;
-        }
-        return xhrWithAuth( 'POST', sURL, true, oData ).then(
+        /*
+        return xhrWithAuth( 'POST', sURL, true, oCalendar ).then(
             function( resolved ){
                 if( resolved.status == 200 ){
                     return JSON.parse(resolved.response);
@@ -224,10 +299,78 @@ calendars.prototype = {
                 return error;
             }
         );
+        */
+        return this;
     },
-    patch:function(){
+    //Updates metadata for a calendar.
+    patch:function( id, oPatch ){
+        var sURL  = this.sCalendarsURL + id;
+
+        if( id && oPatch ){
+            var body = JSON.stringify(oPatch);
+            this.aInsert.push(
+                {
+                    method:'PATCH',
+                    url:sURL,
+                    body:body,
+                    headers:[
+                        'Content-Type':'application/json',
+                        'Content-Length':body.length,
+                        'Content-ID':md5(sURL + body)
+                    ]
+                }
+            );
+        }
+        /*
+        return xhrWithAuth( 'PATCH', sURL, true, oPatch ).then(
+            function( resolved ){
+                if( resolved.status == 200 ){
+                    return JSON.parse(resolved.response);
+                }
+                return resolved;
+            },
+            function( error ){
+                debugger;
+                return error;
+            }
+        );
+        */
+        return this;
     },
-    update:function(){
+    //Updates metadata for a calendar. can udpate the summary. Summary seems to be required
+    update:function( id, oUpdate ){
+        var sURL  = this.sCalendarsURL + id;
+
+        if( id && oUpdate ){
+            var body = JSON.stringify(oUpdate);
+            this.aInsert.push(
+                {
+                    method:'PUT',
+                    url:sURL,
+                    body:body,
+                    headers:[
+                        'Content-Type':'application/json',
+                        'Content-Length':body.length,
+                        'Content-ID':md5(sURL + body)
+                    ]
+                }
+            );
+        }
+        /*
+        return xhrWithAuth( 'PUT', sURL, true, oUpdate ).then(
+            function( resolved ){
+                if( resolved.status == 200 ){
+                    return JSON.parse(resolved.response);
+                }
+                return resolved;
+            },
+            function( error ){
+                debugger;
+                return error;
+            }
+        );
+        */
+        return this;
     }
 }
 functin CalendarListEntry( oCalendarListEntry ){
@@ -459,7 +602,9 @@ CalendarList.prototype = {
         );
     },
 };
-
+/** Batch Notes **
+ * Limited to 50 calls in a single batch request.
+ */
 document.getElementById('run').addEventListener('click',function(){
     var calendar = new Calendars();
     calendar.list( "ktukt423032jk0figv9i1vp154@group.calendar.google.com" ).then(
