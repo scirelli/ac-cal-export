@@ -15,8 +15,12 @@ badd +1 background.js
 badd +1 js/contentscript/main.js
 badd +1 aircraftclubs_popup.html
 badd +1 js/aircraftclubs_popup.js
-badd +1 js/identity.js
 badd +1 css/popup.css
+badd +0 js/lib/xhrWithAuth.js
+badd +0 js/lib/calendar/Events.js
+badd +0 js/lib/calendar/CalendarList.js
+badd +0 js/lib/calendar/CalendarListEntry.js
+badd +0 js/lib/calendar/Calendars.js
 args aircraftclubs.html
 edit manifest.json
 set splitbelow splitright
@@ -38,13 +42,13 @@ set nosplitbelow
 set nosplitright
 wincmd t
 set winheight=1 winwidth=1
-exe 'vert 1resize ' . ((&columns * 62 + 87) / 174)
-exe 'vert 2resize ' . ((&columns * 20 + 87) / 174)
-exe 'vert 3resize ' . ((&columns * 16 + 87) / 174)
-exe '4resize ' . ((&lines * 7 + 25) / 50)
-exe 'vert 4resize ' . ((&columns * 134 + 87) / 174)
-exe '5resize ' . ((&lines * 42 + 25) / 50)
-exe 'vert 5resize ' . ((&columns * 134 + 87) / 174)
+exe 'vert 1resize ' . ((&columns * 34 + 118) / 237)
+exe 'vert 2resize ' . ((&columns * 71 + 118) / 237)
+exe 'vert 3resize ' . ((&columns * 22 + 118) / 237)
+exe '4resize ' . ((&lines * 5 + 26) / 52)
+exe 'vert 4resize ' . ((&columns * 105 + 118) / 237)
+exe '5resize ' . ((&lines * 44 + 26) / 52)
+exe 'vert 5resize ' . ((&columns * 105 + 118) / 237)
 argglobal
 setlocal fdm=manual
 setlocal fde=0
@@ -73,17 +77,12 @@ setlocal fml=1
 setlocal fdn=20
 setlocal fen
 silent! normal! zE
-let s:l = 7 - ((6 * winheight(0) + 25) / 50)
+let s:l = 22 - ((21 * winheight(0) + 25) / 50)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-7
-let s:c = 34 - ((7 * winwidth(0) + 10) / 20)
-if s:c > 0
-  exe 'normal! ' . s:c . '|zs' . 34 . '|'
-else
-  normal! 034|
-endif
+22
+normal! 03|
 wincmd w
 argglobal
 edit js/test.js
@@ -114,7 +113,7 @@ setlocal fml=1
 setlocal fdn=20
 setlocal fen
 silent! normal! zE
-let s:l = 1 - ((0 * winheight(0) + 3) / 7)
+let s:l = 1 - ((0 * winheight(0) + 2) / 5)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
@@ -133,48 +132,21 @@ setlocal fml=1
 setlocal fdn=20
 setlocal fen
 silent! normal! zE
-let s:l = 9 - ((7 * winheight(0) + 21) / 42)
+let s:l = 19 - ((17 * winheight(0) + 22) / 44)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-9
-normal! 011|
+19
+normal! 035|
 lcd ~/My_Programs/aircraftclubs
 wincmd w
-exe 'vert 1resize ' . ((&columns * 62 + 87) / 174)
-exe 'vert 2resize ' . ((&columns * 20 + 87) / 174)
-exe 'vert 3resize ' . ((&columns * 16 + 87) / 174)
-exe '4resize ' . ((&lines * 7 + 25) / 50)
-exe 'vert 4resize ' . ((&columns * 134 + 87) / 174)
-exe '5resize ' . ((&lines * 42 + 25) / 50)
-exe 'vert 5resize ' . ((&columns * 134 + 87) / 174)
-tabedit ~/My_Programs/aircraftclubs/js/identity.js
-set splitbelow splitright
-set nosplitbelow
-set nosplitright
-wincmd t
-set winheight=1 winwidth=1
-argglobal
-setlocal fdm=manual
-setlocal fde=0
-setlocal fmr={{{,}}}
-setlocal fdi=#
-setlocal fdl=0
-setlocal fml=1
-setlocal fdn=20
-setlocal fen
-silent! normal! zE
-21,39fold
-44,77fold
-105,110fold
-114,121fold
-let s:l = 40 - ((38 * winheight(0) + 25) / 51)
-if s:l < 1 | let s:l = 1 | endif
-exe s:l
-normal! zt
-40
-normal! 05|
-lcd ~/My_Programs/aircraftclubs
+exe 'vert 1resize ' . ((&columns * 34 + 118) / 237)
+exe 'vert 2resize ' . ((&columns * 71 + 118) / 237)
+exe 'vert 3resize ' . ((&columns * 22 + 118) / 237)
+exe '4resize ' . ((&lines * 5 + 26) / 52)
+exe 'vert 4resize ' . ((&columns * 105 + 118) / 237)
+exe '5resize ' . ((&lines * 44 + 26) / 52)
+exe 'vert 5resize ' . ((&columns * 105 + 118) / 237)
 tabedit ~/My_Programs/aircraftclubs/js/aircraftclubs_popup.js
 set splitbelow splitright
 set nosplitbelow
@@ -191,12 +163,12 @@ setlocal fml=1
 setlocal fdn=20
 setlocal fen
 silent! normal! zE
-let s:l = 29 - ((16 * winheight(0) + 24) / 49)
+let s:l = 18 - ((17 * winheight(0) + 25) / 51)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-29
-normal! 07|
+18
+normal! 010|
 lcd ~/My_Programs/aircraftclubs
 tabedit ~/My_Programs/aircraftclubs/js/contentscript/main.js
 set splitbelow splitright
@@ -218,14 +190,129 @@ silent! normal! zE
 52,121fold
 4
 normal! zo
-let s:l = 151 - ((109 * winheight(0) + 25) / 51)
+let s:l = 151 - ((106 * winheight(0) + 25) / 51)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
 151
 normal! 016|
 lcd ~/My_Programs/aircraftclubs/js
-tabnext 3
+tabedit ~/My_Programs/aircraftclubs/js/lib/xhrWithAuth.js
+set splitbelow splitright
+set nosplitbelow
+set nosplitright
+wincmd t
+set winheight=1 winwidth=1
+argglobal
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 46 - ((45 * winheight(0) + 25) / 51)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+46
+normal! 09|
+lcd ~/My_Programs/aircraftclubs/js
+tabedit ~/My_Programs/aircraftclubs/js/lib/calendar/Events.js
+set splitbelow splitright
+set nosplitbelow
+set nosplitright
+wincmd t
+set winheight=1 winwidth=1
+argglobal
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 245 - ((37 * winheight(0) + 25) / 51)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+245
+normal! 09|
+lcd ~/My_Programs/aircraftclubs/js
+tabedit ~/My_Programs/aircraftclubs/js/lib/calendar/CalendarList.js
+set splitbelow splitright
+set nosplitbelow
+set nosplitright
+wincmd t
+set winheight=1 winwidth=1
+argglobal
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 133 - ((50 * winheight(0) + 25) / 51)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+133
+normal! 08|
+lcd ~/My_Programs/aircraftclubs/js
+tabedit ~/My_Programs/aircraftclubs/js/lib/calendar/CalendarListEntry.js
+set splitbelow splitright
+set nosplitbelow
+set nosplitright
+wincmd t
+set winheight=1 winwidth=1
+argglobal
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 4 - ((3 * winheight(0) + 25) / 51)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+4
+normal! 011|
+lcd ~/My_Programs/aircraftclubs/js
+tabedit ~/My_Programs/aircraftclubs/js/lib/calendar/Calendars.js
+set splitbelow splitright
+set nosplitbelow
+set nosplitright
+wincmd t
+set winheight=1 winwidth=1
+argglobal
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 224 - ((50 * winheight(0) + 25) / 51)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+224
+normal! 08|
+lcd ~/My_Programs/aircraftclubs/js
+tabnext 2
 if exists('s:wipebuf')
   silent exe 'bwipe ' . s:wipebuf
 endif
