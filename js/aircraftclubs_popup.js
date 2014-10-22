@@ -35,12 +35,37 @@ var client_id        = '920486903505-r6bkir5pv6td8iqh84rbu1k0gngv0s8n.apps.googl
  */
 document.getElementById('run').addEventListener('click',function(){
     var calendarlist = new gcal.CalendarList();
+    calendarlist.list().then(function(aCalendarListEntry){
+        console.log(aCalendarListEntry);
+    });
+    calendarlist.get('4aagckvcu89jtfn825l7tbdpi0@group.calendar.google.com').then(function(oCalenderListEntry){
+        console.log(oCalenderListEntry);
+    });
+    calendarlist.execute();
     /*
     gcal.xhrWithAuth( 'GET', 'https://www.googleapis.com/calendar/v3/users/me/calendarList', true, null, function(r){
         debugger;
     });
     */
-    calendarlist.list().execute().then(
+    //Hard Appointments: 'ktukt423032jk0figv9i1vp154@group.calendar.google.com'
+    //Test: 'ptjt37b746po9qb6hq62qlsrv4@group.calendar.google.com'
+    /*calendarlist.insert({
+        id:'ptjt37b746po9qb6hq62qlsrv4@group.calendar.google.com',
+        defaultReminders:[
+            {
+                method:'email',
+                minutes:10
+            }
+        ],
+        notificationSettings:{
+            notifications:[
+                {
+                    method:'email',
+                    type:'eventCreation'
+                }
+            ]
+        }
+    }).then(
         function( obj ){
             debugger;
         },
@@ -48,4 +73,14 @@ document.getElementById('run').addEventListener('click',function(){
             console.error(error);
         }
     ).done();
+
+    calendarlist.delete('ptjt37b746po9qb6hq62qlsrv4@group.calendar.google.com').then(
+        function( obj ){
+            debugger;
+        },
+        function( error ){
+            console.error(error);
+        }
+    ).done();
+    */
 });
