@@ -55,6 +55,7 @@
         "tabs",
         "*://*.aircraftclubs.com/*",
         "*://apis.google.com/*",
+        "*://www.googleapis.com/*",
         "unlimitedStorage",
         "storage",
          "identity"
