@@ -11,11 +11,48 @@ if( gcal === undefined ){ var gcal = {}; }
         this.aInsert = [];
         this.aPatch  = [];
         this.aUpdate = [];
+        this.aAll    = [];
     }
+
     Calendars.prototype = {
         execute:function(){
-            var aAll = Array.prototpye.concat.call( this.aClear, this.aDelete, this.aGet, this.aInsert, this.aPatch, this.aUpdate );
-            debugger;
+            var aAll = this.aAll; //Array.prototpye.concat.call( this.aClear, this.aDelete, this.aGet, this.aInsert, this.aPatch, this.aUpdate );
+                batchRequest = new gcal.GoogleAPIRequest();
+            this.aAll = [];
+            return batchRequest.execute( aAll );
+        },
+        //Returns metadata for a calendar
+        get:function( id ){
+            var sURL     = this.sCalendarsURL,
+                deferred = Q.defer();
+
+            if(id){ 
+                sURL += id;
+            }
+            this.aAll.push(
+                {
+                    method:'GET',
+                    url:sURL,
+                    headers:[
+                        //{header:'Content-Type', value:'application/http'},
+                    ],
+                    deferred:deferred
+                }
+            );
+
+            return deferred.promise.then(function( oResponse ){
+                var items = [];
+                debugger;
+                if( oResponse.items ){
+                    for( var i=0,a=oResponse.items,l=a.length,itm=null; i<l; i++ ){
+                        items.push( new gcal.CalendarListEntry(a[i]) );
+                    }
+                }else{
+                    items = new gcal.CalendarListEntry(oResponse);
+                }
+
+                return items;
+            });
         },
         //Clears a primary calendar. This operation deletes all data associated with the primary calendar of an account and cannot be undone
         clear:function( primary ){
@@ -71,38 +108,6 @@ if( gcal === undefined ){ var gcal = {}; }
             return xhrWithAuth( 'DELETE', sURL, true ).then(
                 function( resolved ){
                     if( resolved.status == 200 || resolved.status == 204 ){
-                        return JSON.parse(resolved.response);
-                    }
-                    return resolved;
-                },
-                function( error ){
-                    debugger;
-                    return error;
-                }
-            );
-            */
-            return this;
-        },
-        //Returns metadata for a calendar
-        get:function( id ){
-            var sURL = this.sCalendarsURL;
-            sURL += id;
-            if(id){ 
-                this.aGet.push(
-                    {
-                        method:'GET',
-                        url:sURL,
-                        headers:[
-                            {header:'Content-Type', value:'application/http'},
-                            {header:'Content-ID', value:md5(sURL)}
-                        ]
-                    }
-                );
-            }
-            /*
-            return xhrWithAuth( 'GET', sURL, true ).then(
-                function( resolved ){
-                    if( resolved.status == 200 ){
                         return JSON.parse(resolved.response);
                     }
                     return resolved;

@@ -34,8 +34,16 @@ var client_id        = '920486903505-r6bkir5pv6td8iqh84rbu1k0gngv0s8n.apps.googl
  * https://www.googleapis.com/calendar/v3/batch/
  */
 document.getElementById('run').addEventListener('click',function(){
-    var calendarlist = new gcal.CalendarList();
+    var calendarlist = new gcal.CalendarList(),
+        calendar     = new gcal.Calendars();
+    
+    calendar.get('18s4kn3fhvriai8jujb1ss2m7k@group.calendar.google.com').then(function(c){
+        console.log(c);
+    }).done();
 
+    calendar.execute();
+
+    /*
     calendarlist.list().then(function(aCalendarListEntry){
         console.log(aCalendarListEntry);
     }).done();
@@ -79,7 +87,6 @@ document.getElementById('run').addEventListener('click',function(){
         }
     ).done();
 
-    /*
     calendarlist.insert({
         id:'bgi5k124bf64bohkavm62qmu8o@group.calendar.google.com',
         defaultReminders:[
@@ -120,8 +127,8 @@ document.getElementById('run').addEventListener('click',function(){
     function(obj){
         debugger;
     }).done();
-    */
     calendarlist.execute();
+    */
 
     /*
     gcal.xhrWithAuth( 'GET', 'https://www.googleapis.com/calendar/v3/users/me/calendarList', true, null, function(r){
