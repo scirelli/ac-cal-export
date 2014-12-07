@@ -41,85 +41,32 @@ if( gcal === undefined ){ var gcal = {}; }
             );
 
             return deferred.promise.then(function( oResponse ){
-                var items = [];
-                debugger;
-                if( oResponse.items ){
-                    for( var i=0,a=oResponse.items,l=a.length,itm=null; i<l; i++ ){
-                        items.push( new gcal.CalendarListEntry(a[i]) );
-                    }
-                }else{
-                    items = new gcal.CalendarListEntry(oResponse);
-                }
-
-                return items;
+                //If successful you get a Calendars resource
+                return oResponse;
             });
         },
         //Clears a primary calendar. This operation deletes all data associated with the primary calendar of an account and cannot be undone
-        clear:function( primary ){
-            var sURL = this.sCalendarsURL;
-            sURL += 'primary/clear';
+        clear:function( primary /* string: 'primary' */ ){
+            var sURL     = this.sCalendarsURL,
+                deferred = Q.defer();
+
+            if( primary == 'primary' ){
+                sURL += primary + '/clear';
             
-            if( primary ){
-                this.aClear.push(
+                this.aAll.push(
                     {
                         method:'POST',
                         url:sURL,
-                        headers:[
-                            {header:'Content-Type', value:'application/http'},
-                            {header:'Content-ID', value:md5(sURL)}
-                        ]
+                        headers:[],
+                        deferred:deferred
                     }
                 );
             }
-            /*
-            return xhrWithAuth( 'POST', sURL, true ).then(
-                function( resolved ){
-                    if( resolved.status == 200 || resolved.status == 204 ){
-                        return JSON.parse(resolved.response);
-                    }
-                    return resolved;
-                },
-                function( error ){
-                    debugger;
-                    return error;
-                }
-            );
-            */
-            return this;
+            return deferred.promise.then(function( oResponse ){
+                return oResponse;
+            });
         },
-        //Deletes a secondary calendar
-        delete:function( id ){
-            var sURL = this.sCalendarsURL;
-            sURL += id;
-            
-            if( id ){
-                this.aDelete.push(
-                    {
-                        method:'DELETE',
-                        url:sURL,
-                        headers:[
-                            {header:'Content-Type', value:'application/http'},
-                            {header:'Content-ID', value:md5(sURL)}
-                        ]
-                    }
-                );
-            }
-            /*
-            return xhrWithAuth( 'DELETE', sURL, true ).then(
-                function( resolved ){
-                    if( resolved.status == 200 || resolved.status == 204 ){
-                        return JSON.parse(resolved.response);
-                    }
-                    return resolved;
-                },
-                function( error ){
-                    debugger;
-                    return error;
-                }
-            );
-            */
-            return this;
-        },
+        //Creats a secondary calendar
         insert:function( oCalendar ){
             var sURL  = this.sCalendarsURL;
             
@@ -152,6 +99,26 @@ if( gcal === undefined ){ var gcal = {}; }
                 }
             );
             */
+            return this;
+        },
+
+        //Deletes a secondary calendar
+        delete:function( id ){
+            var sURL = this.sCalendarsURL;
+            sURL += id;
+            
+            if( id ){
+                this.aDelete.push(
+                    {
+                        method:'DELETE',
+                        url:sURL,
+                        headers:[
+                            {header:'Content-Type', value:'application/http'},
+                            {header:'Content-ID', value:md5(sURL)}
+                        ]
+                    }
+                );
+            }
             return this;
         },
         //Updates metadata for a calendar.
