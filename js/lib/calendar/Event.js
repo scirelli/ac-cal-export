@@ -2,7 +2,7 @@ if( gcal === undefined ){ var gcal = {}; }
 
 !function(gcal){
 
-    function Event(){
+    function Event( o ){
         this.kind                    = 'calendar#event';
         this.etag                    = '';
         this.id                      = '';
@@ -39,8 +39,17 @@ if( gcal === undefined ){ var gcal = {}; }
         this.locked                  = false;
         this.reminders               = new Event.Reminders(); 
         this.source                  = new Source();
+        
+        if( typeof(o) == 'object' ){
+            this.copy(o);
+        }
     };
     Event.prototype = {
+        copy:function(o){
+        },
+        clone:function(){
+            return this.copy(this);
+        },
         getKind:function(){
             return this.kind;
         },

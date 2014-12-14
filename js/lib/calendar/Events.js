@@ -18,12 +18,34 @@ if( gcal === undefined ){ var gcal = {}; }
         this.aUpdate = [];
         this.aQuickAdd = [];
         this.aWatch = [];
+        this.aAll = [];
     };
 
     Events.prototype = {
         execute:function(){
-            var aAll = Array.prototpye.concat.call( this.aClear, this.aDelete, this.aGet, this.aInsert, this.aPatch, this.aUpdate );
-            debugger;
+            var aAll         = this.aAll, //Array.prototpye.concat.call( this.aClear, this.aDelete, this.aGet, this.aInsert, this.aPatch, this.aUpdate );
+                batchRequest = new gcal.GoogleAPIRequest();
+            this.aAll = [];
+            return batchRequest.execute( aAll );
+        },
+
+        list:function( calId ){
+            var sURL     = this.sCalendarsURL + calId + '/events/',
+                deferred = Q.defer();
+
+            if( calId ){
+                this.aAll.push(
+                    {
+                        method:'GET',
+                        url:sURL,
+                        headers:[],
+                        deferred:deferred
+                    }
+                );
+            }
+            return deferred.promise.then(function( oResponse ){
+                return oResponse;
+            });
         },
 
         delete:function( calId, eventId, sendNotificaiton ){
@@ -122,25 +144,6 @@ if( gcal === undefined ){ var gcal = {}; }
             
             if( calId && eventId ){
                 this.aInstance.push(
-                    {
-                        method:'GET',
-                        url:sURL,
-                        headers:[
-                            {header:'Content-Type', value:'application/http'},
-                            {header:'Content-ID', value:md5(sURL)}
-                        ]
-                    }
-                );
-            }
-            return this;
-        },
-
-        list:function( calId ){
-            var sURL = this.sCalendarsURL;
-            sURL += calId + '/events/';
-            
-            if( calId ){
-                this.aList.push(
                     {
                         method:'GET',
                         url:sURL,

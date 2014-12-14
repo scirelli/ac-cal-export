@@ -68,128 +68,90 @@ if( gcal === undefined ){ var gcal = {}; }
         },
         //Creats a secondary calendar
         insert:function( oCalendar ){
-            var sURL  = this.sCalendarsURL;
+            var sURL     = this.sCalendarsURL,
+                deferred = Q.defer();
             
             if( oCalendar ){
                 var body = JSON.stringify(oCalendar);
-                this.aInsert.push(
+                this.aAll.push(
                     {
                         method:'POST',
                         url:sURL,
                         body:body,
                         headers:[
-                            {header:'Content-Type', value:'application/json'},
-                            {header:'Content-Length', value:body.length},
-                            {header:'Content-ID', value:md5(sURL + body) }
-                        ]
+                            {header:'Content-Type', value:'application/json'}
+                        ],
+                        deferred:deferred
                     }
                 );
             }
-            /*
-            return xhrWithAuth( 'POST', sURL, true, oCalendar ).then(
-                function( resolved ){
-                    if( resolved.status == 200 ){
-                        return JSON.parse(resolved.response);
-                    }
-                    return resolved;
-                },
-                function( error ){
-                    debugger;
-                    return error;
-                }
-            );
-            */
-            return this;
+            return deferred.promise.then(function( oResponse ){
+                return new gcal.Calendar(oResponse);
+            });
         },
 
         //Deletes a secondary calendar
         delete:function( id ){
-            var sURL = this.sCalendarsURL;
-            sURL += id;
-            
+            var sURL     = this.sCalendarsURL + id,
+                deferred = Q.defer();
+
             if( id ){
-                this.aDelete.push(
+                this.aAll.push(
                     {
                         method:'DELETE',
                         url:sURL,
-                        headers:[
-                            {header:'Content-Type', value:'application/http'},
-                            {header:'Content-ID', value:md5(sURL)}
-                        ]
+                        headers:[],
+                        deferred:deferred
                     }
                 );
             }
-            return this;
+            return deferred.promise;
         },
         //Updates metadata for a calendar.
         patch:function( id, oPatch ){
-            var sURL  = this.sCalendarsURL + id;
+            var sURL     = this.sCalendarsURL + id,
+                deferred = Q.defer();
 
             if( id && oPatch ){
                 var body = JSON.stringify(oPatch);
-                this.aInsert.push(
+                this.aAll.push(
                     {
                         method:'PATCH',
                         url:sURL,
                         body:body,
                         headers:[
-                            {header:'Content-Type', value:'application/json'},
-                            {header:'Content-Length', value:body.length},
-                            {header:'Content-ID', value:md5(sURL + body) }
-                        ]
+                            {header:'Content-Type', value:'application/json'}
+                        ],
+                        deferred:deferred
                     }
                 );
             }
-            /*
-            return xhrWithAuth( 'PATCH', sURL, true, oPatch ).then(
-                function( resolved ){
-                    if( resolved.status == 200 ){
-                        return JSON.parse(resolved.response);
-                    }
-                    return resolved;
-                },
-                function( error ){
-                    debugger;
-                    return error;
-                }
-            );
-            */
-            return this;
+            return deferred.promise.then(function( oResponse ){
+                return new gcal.Calendar(oResponse);
+            });
         },
         //Updates metadata for a calendar. can udpate the summary. Summary seems to be required
         update:function( id, oUpdate ){
-            var sURL  = this.sCalendarsURL + id;
+            var sURL     = this.sCalendarsURL + id,
+                deferred = Q.defer();
 
             if( id && oUpdate ){
                 var body = JSON.stringify(oUpdate);
-                this.aInsert.push(
+                this.aAll.push(
                     {
                         method:'PUT',
                         url:sURL,
                         body:body,
                         headers:[
-                            {header:'Content-Type', value:'application/json'},
-                            {header:'Content-Length', value:body.length},
-                            {header:'Content-ID', value:md5(sURL + body) }
-                        ]
+                            {header:'Content-Type', value:'application/json'}
+                        ],
+                        deferred:deferred
                     }
                 );
             }
-            /*
-            return xhrWithAuth( 'PUT', sURL, true, oUpdate ).then(
-                function( resolved ){
-                    if( resolved.status == 200 ){
-                        return JSON.parse(resolved.response);
-                    }
-                    return resolved;
-                },
-                function( error ){
-                    debugger;
-                    return error;
-                }
-            );
-            */
-            return this;
+            return deferred.promise.then(function( oResponse ){
+                return new gcal.Calendar(oResponse);
+            });
         }
     }
     gcal.Calendars = Calendars;

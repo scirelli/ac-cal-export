@@ -37,8 +37,23 @@ document.getElementById('run').addEventListener('click',function(){
     var calendarlist = new gcal.CalendarList(),
         calendar     = new gcal.Calendars();
     
+    calendarlist.list().then(function(aCalendarListEntry){
+        console.log(aCalendarListEntry);
+    }).done();
+
+    calendarlist.execute();
+
     calendar.get('18s4kn3fhvriai8jujb1ss2m7k@group.calendar.google.com').then(function(c){
         console.log(c);
+    }).done();
+    /*
+    calendar.insert( new gcal.Calendar({ summary:'Test 6', description:'Does it work?' }) ).then(function(cal){
+        console.log(cal);
+    }).done();
+    */
+
+    calendar.delete('ipn1dro22mgg7ojjfm1g9uirb4@group.calendar.google.com').then(function(cal){
+        console.log(cal);
     }).done();
 
     calendar.execute();
