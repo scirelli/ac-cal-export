@@ -1,7 +1,6 @@
 if( gcal === undefined ){ var gcal = {}; }
 
 !function(gcal){
-
     function Events(){
         this.sBaseCalendarURL = 'https://www.googleapis.com/calendar/v3/';
         this.sCalendarsURL    = this.sBaseCalendarURL + 'calendars/';
@@ -39,6 +38,31 @@ if( gcal === undefined ){ var gcal = {}; }
                         method:'GET',
                         url:sURL,
                         headers:[],
+                        deferred:deferred
+                    }
+                );
+            }
+            return deferred.promise.then(function( oResponse ){
+                return oResponse;
+            });
+        },
+
+        insert:function( calId, oEvent, maxAttendees, sendNotificaiton ){
+            var sURL = this.sCalendarsURL,
+                deferred = Q.defer();
+            
+            if( calId && oEvent ){
+                var body = JSON.stringify(oEvent);
+
+                sURL += calId + '/events/';
+                this.aAll.push(
+                    {
+                        method:'POST',
+                        url:sURL,
+                        body:body,
+                        headers:[
+                            {header:'Content-Type', value:'application/json'}
+                        ],
                         deferred:deferred
                     }
                 );
@@ -101,28 +125,6 @@ if( gcal === undefined ){ var gcal = {}; }
             if(oEvent){
                 var body = JSON.stringify(oEvent);
                 this.aImport.push(
-                    {
-                        method:'POST',
-                        url:sURL,
-                        body:body,
-                        headers:[
-                            {header:'Content-Type', value:'application/json'},
-                            {header:'Content-Length', value:body.length},
-                            {header:'Content-ID', value:md5(sURL + body) }
-                        ]
-                    }
-                );
-            }
-            return this;
-        },
-
-        insert:function( calId, oEvent, maxAttendees, sendNotificaiton ){
-            var sURL = this.sCalendarsURL;
-            sURL += calId + '/events/';
-            
-            if(oEvent ){
-                var body = JSON.stringify(oEvent);
-                this.aInsert.push(
                     {
                         method:'POST',
                         url:sURL,

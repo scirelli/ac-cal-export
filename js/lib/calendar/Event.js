@@ -290,7 +290,7 @@ if( gcal === undefined ){ var gcal = {}; }
     *************************/
     Event.Date = function(){
         this.date     = new Date(),//"yyyy-mm-dd"
-        this.dateTime = '';
+        this.dateTime = new Date();//yyyy-mm-ddTHH:MM:ss
         this.timeZone = '';
     };
     Event.ExtendedProperties = function(){

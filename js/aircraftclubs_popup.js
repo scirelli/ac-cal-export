@@ -42,7 +42,7 @@ document.getElementById('run').addEventListener('click',function(){
     }).done();
 
     calendarlist.execute();
-
+    //scirelli2: guqf5l5oaq8gmnubglim85uedk@group.calendar.google.com
     calendar.get('18s4kn3fhvriai8jujb1ss2m7k@group.calendar.google.com').then(function(c){
         console.log(c);
     }).done();
