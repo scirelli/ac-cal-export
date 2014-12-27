@@ -154,7 +154,25 @@ document.getElementById('run').addEventListener('click',function(){
                 console.log(reason);
             }
         ).done();
-        //"ljjnf3faadocv1idboue0mii00"
+
+        events.insert( '18s4kn3fhvriai8jujb1ss2m7k@group.calendar.google.com', {
+            description:"test " + Math.random(),
+            summary:"test summary " + Math.random(),
+            start: new gcal.Event.Date({
+                dateTime: Date.today().setTimeToNow().set({hour:7,minute:10}).toISOString()
+            }),
+            end: new gcal.Event.Date({
+                dateTime: Date.today().setTimeToNow().addHours(1).toISOString()
+            })
+        }).then(
+            function(evnts){
+                console.log(evnts);
+            },
+            function( reason ){
+                console.log(reason);
+            }
+        ).done();
+
         events.execute();
     };
     testEvents();

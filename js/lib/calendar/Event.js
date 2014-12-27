@@ -346,11 +346,15 @@ if( gcal === undefined ){ var gcal = {}; }
             2011-06-03T10:00:00.000Z — with milliseconds and an offset set to 00:00.
 
         If an offset is not provided when creating, importing or updating an event, the timeZone field has to be set to a valid time zone value.
+        
+        Date.js
+            new Date().toString("yyyy-MM-ddTHH:mm:ssZ");  // "2008-04-13T04:11:05Z"
     *************************/
     Event.Date = function(o){
-        this.date     = new Date();//"yyyy-mm-dd"
-        this.dateTime = new Date();//yyyy-mm-ddTHH:MM:ss
-        this.timeZone = '';
+        this.date     = undefined;//"yyyy-mm-dd"
+        this.dateTime = undefined;//yyyy-mm-ddTHH:MM:ss
+        this.timeZone = undefined;
+
         if( typeof(o) == 'object' ){
             this.copy(o);
         }

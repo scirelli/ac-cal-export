@@ -98,7 +98,7 @@ if( gcal === undefined ){ var gcal = {}; }
                 );
             }
             return deferred.promise.then(function( oResponse ){
-                return oResponse;
+                return new gcal.Event(oResponse);
             });
         },
 
