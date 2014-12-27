@@ -35,102 +35,133 @@ var client_id        = '920486903505-r6bkir5pv6td8iqh84rbu1k0gngv0s8n.apps.googl
  */
 document.getElementById('run').addEventListener('click',function(){
     var calendarlist = new gcal.CalendarList(),
-        calendar     = new gcal.Calendars();
+        calendar     = new gcal.Calendars(),
+        events       = new gcal.Events();
+   
+    function testCalendar(){
+        calendarlist.list().then(function(aCalendarListEntry){
+            console.log(aCalendarListEntry);
+        }).done();
+
+        calendarlist.execute();
+        //scirelli2: guqf5l5oaq8gmnubglim85uedk@group.calendar.google.com
+        calendar.get('18s4kn3fhvriai8jujb1ss2m7k@group.calendar.google.com').then(function(c){
+            console.log(c);
+        }).done();
+        /*
+        calendar.insert( new gcal.Calendar({ summary:'Test 6', description:'Does it work?' }) ).then(function(cal){
+            console.log(cal);
+        }).done();
+
+        calendar.delete('ipn1dro22mgg7ojjfm1g9uirb4@group.calendar.google.com').then(function(cal){
+            console.log(cal);
+        }).done();
+        */
+
+        calendar.execute();
+
+        /*
+        calendarlist.list().then(function(aCalendarListEntry){
+            console.log(aCalendarListEntry);
+        }).done();
+
+        calendarlist.get('18s4kn3fhvriai8jujb1ss2m7k@group.calendar.google.com').then(function(oCalenderListEntry){
+            console.log(oCalenderListEntry);
+        }).done();
+
+        calendarlist.insert({
+            id:'18s4kn3fhvriai8jujb1ss2m7k@group.calendar.google.com',
+            defaultReminders:[
+                {
+                    method:'email',
+                    minutes:10
+                }
+            ],
+            notificationSettings:{
+                notifications:[
+                    {
+                        method:'email',
+                        type:'eventCreation'
+                    }
+                ]
+            }
+        }).then(
+            function( obj ){
+            },
+            function( error ){
+                debugger;
+                console.error(error);
+            }
+        ).done();
+
+        calendarlist.delete('0vf8d7bhs203c0rk92as26v2qk@group.calendar.google.com').then(
+            function(oCalenderListEntry){
+                console.log('Delete: ');
+                debugger;
+            },
+            function(obj){
+                debugger;
+            }
+        ).done();
+
+        calendarlist.insert({
+            id:'bgi5k124bf64bohkavm62qmu8o@group.calendar.google.com',
+            defaultReminders:[
+                {
+                    method:'email',
+                    minutes:10
+                }
+            ],
+            notificationSettings:{
+                notifications:[
+                    {
+                        method:'email',
+                        type:'eventCreation'
+                    }
+                ]
+            }
+        }).then(
+            function( obj ){
+            },
+            function( error ){
+                debugger;
+                console.error(error);
+            }
+        ).done();
+
+        calendarlist.get('bgi5k124bf64bohkavm62qmu8o@group.calendar.google.com').then(function(oCalenderListEntry){
+            console.log(oCalenderListEntry);
+        }).done();
+        */
+    };
     
-    calendarlist.list().then(function(aCalendarListEntry){
-        console.log(aCalendarListEntry);
-    }).done();
-
-    calendarlist.execute();
-    //scirelli2: guqf5l5oaq8gmnubglim85uedk@group.calendar.google.com
-    calendar.get('18s4kn3fhvriai8jujb1ss2m7k@group.calendar.google.com').then(function(c){
-        console.log(c);
-    }).done();
-    /*
-    calendar.insert( new gcal.Calendar({ summary:'Test 6', description:'Does it work?' }) ).then(function(cal){
-        console.log(cal);
-    }).done();
-    */
-
-    calendar.delete('ipn1dro22mgg7ojjfm1g9uirb4@group.calendar.google.com').then(function(cal){
-        console.log(cal);
-    }).done();
-
-    calendar.execute();
-
-    /*
-    calendarlist.list().then(function(aCalendarListEntry){
-        console.log(aCalendarListEntry);
-    }).done();
-
-    calendarlist.get('18s4kn3fhvriai8jujb1ss2m7k@group.calendar.google.com').then(function(oCalenderListEntry){
-        console.log(oCalenderListEntry);
-    }).done();
-
-    calendarlist.insert({
-        id:'18s4kn3fhvriai8jujb1ss2m7k@group.calendar.google.com',
-        defaultReminders:[
-            {
-                method:'email',
-                minutes:10
+    function testEvents(){
+        //listid: 18s4kn3fhvriai8jujb1ss2m7k@group.calendar.google.com
+        //eventid:5466160332369527 
+        events.list('18s4kn3fhvriai8jujb1ss2m7k@group.calendar.google.com').then(
+            function(evnts){
+                console.log(evnts);
+            },
+            function( reason ){
+                console.log(reason);
             }
-        ],
-        notificationSettings:{
-            notifications:[
-                {
-                    method:'email',
-                    type:'eventCreation'
-                }
-            ]
-        }
-    }).then(
-        function( obj ){
-        },
-        function( error ){
-            debugger;
-            console.error(error);
-        }
-    ).done();
-
-    calendarlist.delete('0vf8d7bhs203c0rk92as26v2qk@group.calendar.google.com').then(
-        function(oCalenderListEntry){
-            console.log('Delete: ');
-            debugger;
-        },
-        function(obj){
-            debugger;
-        }
-    ).done();
-
-    calendarlist.insert({
-        id:'bgi5k124bf64bohkavm62qmu8o@group.calendar.google.com',
-        defaultReminders:[
-            {
-                method:'email',
-                minutes:10
+        ).done();
+        events.get('18s4kn3fhvriai8jujb1ss2m7k@group.calendar.google.com', 'ljjnf3faadocv1idboue0mii00').then(
+            function(evnts){
+                console.log(evnts);
+            },
+            function( reason ){
+                console.log(reason);
             }
-        ],
-        notificationSettings:{
-            notifications:[
-                {
-                    method:'email',
-                    type:'eventCreation'
-                }
-            ]
-        }
-    }).then(
-        function( obj ){
-        },
-        function( error ){
-            debugger;
-            console.error(error);
-        }
-    ).done();
+        ).done();
+        //"ljjnf3faadocv1idboue0mii00"
+        events.execute();
+    };
+    testEvents();
 
-    calendarlist.get('bgi5k124bf64bohkavm62qmu8o@group.calendar.google.com').then(function(oCalenderListEntry){
-        console.log(oCalenderListEntry);
-    }).done();
-    */
+
+
+
 
     //bgi5k124bf64bohkavm62qmu8o@group.calendar.google.com
     /*

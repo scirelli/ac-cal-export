@@ -25,7 +25,13 @@ if( gcal === undefined ){ var gcal = {}; }
             var aAll         = this.aAll, //Array.prototpye.concat.call( this.aClear, this.aDelete, this.aGet, this.aInsert, this.aPatch, this.aUpdate );
                 batchRequest = new gcal.GoogleAPIRequest();
             this.aAll = [];
-            return batchRequest.execute( aAll );
+            if( aAll.length ){
+                return batchRequest.execute( aAll );
+            }else{
+                var deferred = Q.defer();
+                deferred.reject("Events.execute(): Nothing to process.");
+                return deferred.promise;
+            }
         },
 
         list:function( calId ){
@@ -43,7 +49,31 @@ if( gcal === undefined ){ var gcal = {}; }
                 );
             }
             return deferred.promise.then(function( oResponse ){
+                for( var i=0,a=oResponse.items,l=oResponse.items.length; i<l; i++ ){
+                    a[i] = new gcal.Event(a[i]);
+                }
                 return oResponse;
+            });
+        },
+
+        get:function( calId, eventId, alwaysIncludeEmail, maxAttendees, timeZone ){
+            var sURL     = this.sCalendarsURL,
+                deferred = Q.defer();
+
+            sURL += calId + '/events/' + eventId;
+            
+            if( calId && eventId ){
+                this.aAll.push(
+                    {
+                        method:'GET',
+                        url:sURL,
+                        headers:[],
+                        deferred:deferred
+                    }
+                );
+            }
+            return deferred.promise.then(function( oResponse ){
+                return new gcal.Event(oResponse);
             });
         },
 
@@ -89,28 +119,6 @@ if( gcal === undefined ){ var gcal = {}; }
                         headers:[
                             {header:'Content-Type', value:'application/http'},
                             {header:'Content-ID',   value:md5(sURL)}
-                        ]
-                    }
-                );
-            }
-            return this;
-        },
-
-        get:function( calId, eventId, alwaysIncludeEmail, maxAttendees, timeZone ){
-            var sURL = this.sCalendarsURL;
-            sURL += calId + '/events/';
-            
-            if( eventId ){
-                sURL += eventId;
-            }
-            if( calId ){
-                this.aGet.push(
-                    {
-                        method:'GET',
-                        url:sURL,
-                        headers:[
-                            {header:'Content-Type', value:'application/http'},
-                            {header:'Content-ID', value:md5(sURL)}
                         ]
                     }
                 );

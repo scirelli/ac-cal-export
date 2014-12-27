@@ -38,7 +38,7 @@ if( gcal === undefined ){ var gcal = {}; }
         this.privateCopy             = false;
         this.locked                  = false;
         this.reminders               = new Event.Reminders(); 
-        this.source                  = new Source();
+        this.source                  = new Event.Source();
         
         if( typeof(o) == 'object' ){
             this.copy(o);
@@ -46,6 +46,43 @@ if( gcal === undefined ){ var gcal = {}; }
     };
     Event.prototype = {
         copy:function(o){
+            this.kind                    = 'calendar#event';
+            this.etag                    = o.etag;
+            this.id                      = o.id;
+            this.status                  = o.status;
+            this.htmlLink                = o.htmlLink;
+            this.created                 = o.created;
+            this.updated                 = o.updated;
+            this.summary                 = o.summary;
+            this.description             = o.description;
+            this.location                = o.location;
+            this.colorId                 = o.colorId;
+            this.creator                 = new Event.Attendee(o.creator);
+            this.organizer               = new Event.Attendee(o.organizer);
+            this.start                   = new Event.Date(o.start);
+            this.end                     = new Event.Date(o.end);
+            this.endTimeUnspecified      = o.endTimeUnspecified;
+            this.recurrence              = o.recurrence;
+            this.recurringEventId        = o.recurringEventId;
+            this.originalStartTime       = new Event.Date(o.originalStartTime);
+            this.transparency            = o.transparency;
+            this.visibility              = o.visibility;
+            this.iCalUID                 = o.iCalUID;
+            this.sequence                = o.sequence;
+            this.attendees               = o.attendees;
+            this.attendeesOmitted        = o.attendeesOmitted;
+            this.extendedProperties      = new Event.ExtendedProperties(o.extendedProperties);
+            this.hangoutLink             = o.hangoutLink;
+            this.gadget                  = new Event.Gadget(o.gadget);
+            this.anyoneCanAddSelf        = o.anyoneCanAddSelf;
+            this.guestsCanInviteOthers   = o.guestsCanInviteOthers;
+            this.guestsCanModify         = o.guestsCanModify;
+            this.guestsCanSeeOtherGuests = o.guestsCanSeeOtherGuests;
+            this.privateCopy             = o.privateCopy;
+            this.locked                  = o.locked;
+            this.reminders               = new Event.Reminders(o.reminders); 
+            this.source                  = new Event.Source(o.source);
+            return this;
         },
         clone:function(){
             return this.copy(this);
@@ -265,7 +302,8 @@ if( gcal === undefined ){ var gcal = {}; }
             this.source = source;
         }
     };
-    Event.Attendee = function(){
+
+    Event.Attendee = function(o){
         this.id          = '';
         this.email       = '';
         this.displayName = '';
@@ -275,7 +313,28 @@ if( gcal === undefined ){ var gcal = {}; }
         this.responseStatus = '';
         this.comment     = '';
         this.additionalGuests = 0;
+        if( typeof(o) == 'object' ){
+            this.copy(o);
+        }
     };
+    Event.Attendee.prototype = {
+        copy:function(o){
+            this.id               = o.id;
+            this.email            = o.email;
+            this.displayName      = o.displayName;
+            this.self             = o.self;
+            this.resource         = o.resource;
+            this.optional         = o.optional;
+            this.responseStatus   = o.responseStatus;
+            this.comment          = o.comment;
+            this.additionalGuests = o.additionalGuests;
+            return this;
+        },
+        clone:function(){
+            return this.copy(this);
+        }
+    };
+
     /***********************
         The dateTime field is a string representing a date-time in the (RFC 3339) format "yyyy-mm-ddTHH:MM:ss" with an optional milliseconds and offset elements. The following examples are valid values:
 
@@ -288,20 +347,49 @@ if( gcal === undefined ){ var gcal = {}; }
 
         If an offset is not provided when creating, importing or updating an event, the timeZone field has to be set to a valid time zone value.
     *************************/
-    Event.Date = function(){
-        this.date     = new Date(),//"yyyy-mm-dd"
+    Event.Date = function(o){
+        this.date     = new Date();//"yyyy-mm-dd"
         this.dateTime = new Date();//yyyy-mm-ddTHH:MM:ss
         this.timeZone = '';
+        if( typeof(o) == 'object' ){
+            this.copy(o);
+        }
     };
-    Event.ExtendedProperties = function(){
+    Event.Date.prototype = {
+        copy:function(o){
+            this.date     = o.date;
+            this.dateTime = o.dateTime;
+            this.timeZone = o.timeZone;
+            return this;
+        },
+        clone:function(){
+            return this.copy(this);
+        }
+    };
+
+    Event.ExtendedProperties = function(o){
         this.private = {
             //(key): string
         };
         this.shared = {
             //(key): string
         };
+        if( typeof(o) == 'object' ){
+            this.copy(o);
+        }
     };
-    Event.Gadget = function(){
+    Event.ExtendedProperties.prototype = {
+        copy:function(o){
+            this.private = o.private;
+            this.shared  = o.shared;
+            return this;
+        },
+        clone:function(){
+            return this.copy(this);
+        }
+    };
+
+    Event.Gadget = function(o){
         this.type        = '';
         this.title       = '';
         this.link        = '';
@@ -312,18 +400,80 @@ if( gcal === undefined ){ var gcal = {}; }
         this.preferences = {
           //(key): string
         };
+        if( typeof(o) == 'object' ){
+            this.copy(o);
+        }
     };
-    Event.Reminders = function(){
+    Event.Gadget.prototype = {
+        copy:function(o){
+            this.type        = o.type;
+            this.title       = o.title;
+            this.link        = o.link;
+            this.iconLink    = o.iconLink;
+            this.width       = o.width;
+            this.height      = o.height;
+            this.display     = o.display;
+            this.preferences = o.preferences;
+            return this;
+        },
+        clone:function(){
+            return this.copy(this);
+        }
+    };
+
+
+    Event.Reminders = function(o){
         this.useDefault = false;
         this.overrides  = [];
+        if( typeof(o) == 'object' ){
+            this.copy(o);
+        }
     };
-    Event.Reminders.Overrides = function(){
+    Event.Reminders.prototype = {
+        copy:function(o){
+            this.useDefault = o.useDefault;
+            this.overrides  = o.overrides;
+            return this;
+        },
+        clone:function(){
+            return this.copy(this);
+        }
+    };
+
+    Event.Reminders.Overrides = function(o){
         this.method  = ''; //"email" - Reminders are sent via email.  "sms" - Reminders are sent via SMS.  "popup"
         this.minutes = 0;
+        if( typeof(o) == 'object' ){
+            this.copy(o);
+        }
     };
-    Event.Source = function(){
+    Event.Reminders.Overrides.prototype = {
+        copy:function(o){
+            this.method  = o.method;
+            this.minutes = o.minutes;
+            return this;
+        },
+        clone:function(){
+            return this.copy(this);
+        }
+    };
+
+    Event.Source = function(o){
         this.url   = '';
         this.title = '';
+        if( typeof(o) == 'object' ){
+            this.copy(o);
+        }
+    };
+    Event.Source.prototype = {
+        copy:function(o){
+            this.url   = o.url;
+            this.title = o.title;
+            return this;
+        },
+        clone:function(){
+            return this.copy(this);
+        }
     };
 
     gcal.Event = Event;

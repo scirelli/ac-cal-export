@@ -21,7 +21,13 @@ if( gcal === undefined ){ var gcal = {}; }
             var aAll         = this.aAll,
                 batchRequest = new gcal.GoogleAPIRequest();
             this.aAll = [];
-            return batchRequest.execute( aAll );
+            if( aAll.length ){
+                return batchRequest.execute( aAll );
+            }else{
+                var deferred = Q.defer();
+                deferred.reject("CalendarList.execute(): Nothing to process.");
+                return deferred.promise;
+            }
         },
 
         list:function( id ){
