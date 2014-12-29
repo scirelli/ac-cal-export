@@ -176,7 +176,7 @@ document.getElementById('run').addEventListener('click',function(){
 
         events.execute();
     };
-    testEvents();
+    //testEvents();
 
 
 

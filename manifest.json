@@ -10,6 +10,14 @@
             "js/lib/q.js",
             "js/lib/date.js",
             "js/lib/md5.js",
+            "js/lib/extras-string.js",
+            "js/lib/xhrWithAuth.js",
+            "js/lib/calendar/Events.js",
+            "js/lib/calendar/Event.js",
+            "js/lib/calendar/CalendarList.js",
+            "js/lib/calendar/CalendarListEntry.js",
+            "js/lib/calendar/Calendars.js",
+            "js/lib/calendar/Calendar.js",
             "background.js"
         ],
         "persistent":false
