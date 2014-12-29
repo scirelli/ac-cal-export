@@ -37,7 +37,8 @@ document.getElementById('run').addEventListener('click',function(){
     var calendarlist = new gcal.CalendarList(),
         calendar     = new gcal.Calendars(),
         events       = new gcal.Events();
-   
+    
+    //Calendar and CalendarList
     function testCalendar(){
         calendarlist.list().then(function(aCalendarListEntry){
             console.log(aCalendarListEntry);
@@ -134,7 +135,7 @@ document.getElementById('run').addEventListener('click',function(){
         }).done();
         */
     };
-    
+    //Events
     function testEvents(){
         //listid: 18s4kn3fhvriai8jujb1ss2m7k@group.calendar.google.com
         //eventid:5466160332369527 
