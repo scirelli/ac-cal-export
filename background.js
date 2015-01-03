@@ -33,12 +33,14 @@ var acc = function(){
     function exportToGCal( oData ){
         var oResMap = resGroupByCallSign(oData.aInst.concat(oData.aPlanes));
 
-        attachCalendarResourceToResource(oResMap).then(function( o ){
-            debugger;
+        attachGCalendarsToScrappedResources(oResMap).then(function( o ){
+            return removeAlreadyCreatedEventsFromMap( oResMap );
+        }).then(function(){
+            return insertScrapedEventsToGCal( oResMap );
         }).done();
     }
 
-    function attachCalendarResourceToResource( oResMap ){
+    function attachGCalendarsToScrappedResources( oResMap ){
         var calList = new gcal.CalendarList(),
             promise = null;
 
@@ -70,6 +72,18 @@ var acc = function(){
         calList.execute();
 
         return promise;
+    }
+    
+    function removeAlreadyCreatedEventsFromMap( oResMap ){
+        var deferred = Q.deferred();
+        deferred.reject("Unimplemented method.");
+        return deferred.promise;
+    }
+
+    function insertScrapedEventsToGCal( oResMap ){
+        var deferred = Q.deferred();
+        deferred.reject("Unimplemented method.");
+        return deferred.promise;
     }
 
     function resGroupByBooker( aoEvents ){
