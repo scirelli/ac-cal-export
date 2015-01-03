@@ -81,7 +81,6 @@ var acc = function( acc ){
     };
 
     function scrape(){
-    "use strict";
         var oBottomframe    = document.querySelector('frameset frame[name="bottomframe"]').contentDocument,
             oRightframe     = oBottomframe.querySelector('frameset frame[name="rightframe"]').contentDocument,
             oResourceSelect = oRightframe.querySelector('select[name="id"]'),
@@ -129,7 +128,7 @@ var acc = function( acc ){
     };
 
     function scrapeNew( sAircraftId, sInstructorId, sEquipmentId ){
-        var url         = 'https://new.aircraftclubs.com/functions/booking/getBookingsForCalendar.php?p=&a={{aircraft}}&i={{instructor}}&e={{equipment}}&f=a&start=1409457600&end=1413086400&_={{date}}',
+        var url         = 'https://www.aircraftclubs.com/functions/booking/getBookingsForCalendar.php?p=&a={{aircraft}}&i={{instructor}}&e={{equipment}}&f=a&start={{start}}&end={{end}}&_={{date}}',
             dDate       = new Date();
 
         sAircraftId   = sAircraftId   || 0;
@@ -161,40 +160,71 @@ var acc = function( acc ){
             aircraft:sAircraftId,
             instructor:sInstructorId,
             equipment:sEquipmentId,
-            date:dDate.getTime()
+            date:dDate.getTime(),
+            start:Math.round(dDate.moveToFirstDayOfMonth().getTime()/1000),
+            end:Math.round(dDate.moveToLastDayOfMonth().getTime()/1000)
         })).then(
             function( response ){
                 var deferred = Q.defer(),
                     data     = [],
-                    obj      = [];
+                    aPlanes  = [],
+                    aInst    = [];
 
                 if( response.status == '200' ){
                     data = JSON.parse(response.responseText);
-                    for( var i=0,l=data.length,itm=null,span=document.createElement('span'),booker='',plane=false,instructor=false; i<l; i++ ){
+                    for( var i=0,l=data.length,itm=null,span=document.createElement('span'),booker='',bPlane=false,bInstructor=false,dStart=null,dEnd=null; i<l; i++ ){
                         itm = data[i];
 
                         span.innerHTML = itm.title;
 
                         booker     = span.querySelector('.bookingPilot');
                         booker     = booker ? booker.innerText : '';
-                        plane      = span.querySelector('.airplane') ? true : false;
-                        instructor = span.querySelector('.headset')? true : false;
-
-                        obj.push({
-                            dStart: new Date(itm.start), // For some reason this doesn't get sent to the background page. It comes through as an object not a date.
-                            dEnd:   new Date(itm.end),   // Keeping them for sorting purposes. 
-                            start:  itm.start,
-                            end:    itm.end,
-                            id:     itm.id,
-                            booker:booker,
-                            plane:plane,
-                            instructor:instructor
-                        });
+                        bPlane      = span.querySelector('.airplane') ? true : false;
+                        bInstructor = span.querySelector('.headset')? true : false;
+                        
+                        dStart = new Date(itm.start);
+                        dEnd   = new Date(itm.end);
+                        
+                        if( bInstructor ){
+                            aInst.push({
+                                dStart: dStart, // Keeping them for sorting purposes. 
+                                dEnd:   dEnd,
+                                start:  dStart.toISOString(),
+                                end:    dEnd.toISOString(),
+                                id:     itm.id,
+                                booker:booker,
+                                bPlane:bPlane,
+                                bInstructor:bInstructor,
+                                sInstructorId:sInstructorId,
+                                oInstructor:oInstructors[sInstructorId],
+                                sEquipmentId:sEquipmentId,
+                                oEquipment:oEquipment[sEquipmentId]
+                            });
+                        }
+                        if( bPlane ){
+                            aPlanes.push({
+                                dStart: dStart, // Keeping them for sorting purposes. 
+                                dEnd:   dEnd,
+                                start:  dStart.toISOString(),
+                                end:    dEnd.toISOString(),
+                                id:     itm.id,
+                                booker:booker,
+                                bPlane:bPlane,
+                                bInstructor:bInstructor,
+                                sAircraftId:sAircraftId,
+                                oAircraft:oPlanes[sAircraftId],
+                                sEquipmentId:sEquipmentId,
+                                oEquipment:oEquipment[sEquipmentId]
+                            });
+                        }
                     }
-                    obj.sort(function(a,b){
+                    aPlanes.sort(function(a,b){
                         return a.dStart.getTime() - b.dStart.getTime();
                     });
-                    deferred.resolve( obj );
+                    aInst.sort(function(a,b){
+                        return a.dStart.getTime() - b.dStart.getTime();
+                    });
+                    deferred.resolve( { aPlanes:aPlanes, aInst:aInst } );
                 }else{
                     deferred.reject( {error:{status:response.status, response:response} } );
                 }
@@ -246,7 +276,7 @@ var acc = function( acc ){
 
     function insertToolbarCalIcon(){
         var div = document.createElement('div');
-        div.innerHTML = ' <span class="glyphicons calendar" style="font-size:20px;color:#444;padding-bottom:3px"></span> <br> Calendar Export ';
+        div.innerHTML = '<span class="glyphicons calendar" style="font-size:20px;color:#444;padding-bottom:3px"></span><br>Calendar Export';
         
         div.id = 'exportCalViewAction';
         div.classList.add('yourActionsItem');

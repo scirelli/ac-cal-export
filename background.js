@@ -14,9 +14,130 @@ function checkForValidUrl(tabId, changeInfo, tab) {
 // Listen for any changes to the URL of any tab.
 chrome.tabs.onUpdated.addListener(checkForValidUrl);
 
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    debugger;
-    console.log(sender.tab ?  "from a content script:" + sender.tab.url : "from the extension");
-    console.log(request);
+chrome.runtime.onMessage.addListener(function( oResponse, sender, sendResponse) {
+    //console.log(sender.tab ?  "from a content script:" + sender.tab.url : "from the extension");
+    console.log("Scraped: ");
+    console.log(oResponse);
+
+    //Group by booker
+    if( oResponse.success ){
+        acc.export(oResponse.data);
+    }
     return true;
 });
+
+//Name space for this app
+var acc = function(){
+    var tz = jstz.determine().name(); // Determines the time zone of the browser client
+    
+    function exportToGCal( oData ){
+        var oResMap = resGroupByCallSign(oData.aInst.concat(oData.aPlanes));
+
+        attachCalendarResourceToResource(oResMap).then(function( o ){
+            debugger;
+        }).done();
+    }
+
+    function attachCalendarResourceToResource( oResMap ){
+        var calList = new gcal.CalendarList(),
+            promise = null;
+
+        promise = calList.list().then(function( aList ){
+            var oCalListMap = oCalListMap = calGroupBySummary( aList ),
+                aNoCLE      = [],
+                cal         = new gcal.Calendars(),
+                aPromises   = [];
+
+            for( var callSign in oResMap ){
+                if( oResMap.hasOwnProperty(callSign) && oCalListMap.hasOwnProperty(callSign) ){
+                    oResMap[callSign].cle = oCalListMap[callSign].cle;
+                }else{
+                    aNoCLE.push( oResMap[callSign] );
+                }
+            }
+
+            for( var i=0,l=aNoCLE.length,itm=null,evt=null; i<l; i++ ){
+                itm = aNoCLE[i];
+                evt = itm.events[0];
+                aPromises.push( cal.insert( scrapedEventToCalObj(evt) ).then(function( oCal ){
+                    oResMap[oCal.summary].cle = [oCal];
+                    return oCal.summary;
+                }));
+            }
+            cal.execute();
+            return Q.allSettled(aPromises);
+        });
+        calList.execute();
+
+        return promise;
+    }
+
+    function resGroupByBooker( aoEvents ){
+        var oMap = {};
+        for( var i=0,l=aoEvents.length,itm=null; i<l; i++ ){
+            itm = aoEvents[i];
+            if( oMap.hasOwnProperty(itm.booker) ){
+                oMap[itm.booker].push(itm);
+            }else{
+                oMap[itm.booker] = [itm];
+            }
+        }
+        return oMap;
+    }
+
+    function resGroupByCallSign( aResouces ){
+        var oMap = {};
+        for( var i=0,l=aResouces.length,itm=null,res={}; i<l; i++ ){
+            itm = aResouces[i];
+            if( itm.oInstructor ) res = itm.oInstructor;
+            if( itm.oAircraft ) res = itm.oAircraft;
+
+            if( oMap.hasOwnProperty( res.callSign ) ){
+                oMap[res.callSign].events.push( itm );
+            }else{
+                oMap[res.callSign] = { events:[itm] };
+            }
+        }
+        return oMap;
+    }
+
+    function calGroupBySummary( aCalListEntry ){
+        var oMap = {};
+        for( var i=0,l=aCalListEntry.length,itm=null,res={}; i<l; i++ ){
+            itm = aCalListEntry[i];
+
+            if( oMap.hasOwnProperty( itm.summary ) ){
+                oMap[itm.summary].cle.push( itm );
+            }else{
+                oMap[itm.summary] = { cle:[itm] };
+            }
+        }
+        return oMap;
+    }
+
+    function scrapedEventToCalObj( oEvt ){
+        var str = "",
+            callSign = "";
+        try{
+            if( oEvt.oInstructor ){
+                callSign = oEvt.oInstructor.callSign;
+                str += "Instructor: " + oEvt.oInstructor.name + "\n" +
+                       "Call Sign: " + oEvt.oInstructor.callSign + "\n"
+            }else if( oEvt.oAircraft ){
+                callSign = oEvt.oAircraft.callSign;
+                str += "Aircraft: " + oEvt.oAircraft.name + "\n" +
+                       "Call Sign: " + oEvt.oAircraft.callSign + "\n" +
+                       "Tail#: " + oEvt.oAircraft.tailNumber + "\n"
+            }
+        }catch( e ){}
+        return {
+            summary:callSign,
+            description:str,
+            timeZone:tz
+        };
+    }
+
+    return { 
+        export:exportToGCal
+    }
+}();
