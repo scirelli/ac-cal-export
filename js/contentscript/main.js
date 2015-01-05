@@ -129,7 +129,11 @@ var acc = function( acc ){
 
     function scrapeNew( sAircraftId, sInstructorId, sEquipmentId ){
         var url         = 'https://www.aircraftclubs.com/functions/booking/getBookingsForCalendar.php?p=&a={{aircraft}}&i={{instructor}}&e={{equipment}}&f=a&start={{start}}&end={{end}}&_={{date}}',
-            dDate       = new Date();
+            dDate       = new Date(),
+            nStart      = dDate.moveToFirstDayOfMonth().clearTime().getTime(),
+            sStart      = dDate.toISOString(),
+            nEnd        = dDate.moveToLastDayOfMonth().clearTime().add(1).day().getTime(),
+            sEnd        = dDate.toISOString();
 
         sAircraftId   = sAircraftId   || 0;
         sInstructorId = sInstructorId || 0;
@@ -161,8 +165,8 @@ var acc = function( acc ){
             instructor:sInstructorId,
             equipment:sEquipmentId,
             date:dDate.getTime(),
-            start:Math.round(dDate.moveToFirstDayOfMonth().getTime()/1000),
-            end:Math.round(dDate.moveToLastDayOfMonth().getTime()/1000)
+            start:Math.round(nStart/1000),
+            end:Math.round(nEnd/1000)
         })).then(
             function( response ){
                 var deferred = Q.defer(),
@@ -224,7 +228,7 @@ var acc = function( acc ){
                     aInst.sort(function(a,b){
                         return a.dStart.getTime() - b.dStart.getTime();
                     });
-                    deferred.resolve( { aPlanes:aPlanes, aInst:aInst } );
+                    deferred.resolve( { aPlanes:aPlanes, aInst:aInst, nStart:nStart, nEnd:nEnd, sStart:sStart, sEnd:sEnd } );
                 }else{
                     deferred.reject( {error:{status:response.status, response:response} } );
                 }

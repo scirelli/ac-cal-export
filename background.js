@@ -31,10 +31,11 @@ var acc = function(){
     var tz = jstz.determine().name(); // Determines the time zone of the browser client
     
     function exportToGCal( oData ){
-        var oResMap = resGroupByCallSign(oData.aInst.concat(oData.aPlanes));
+        var oResMap         = resGroupByCallSign(oData.aInst.concat(oData.aPlanes)),
+            oEventDateRange = { nStart:oData.nStart, nEnd:oData.nEnd, sStart:oData.sStart, sEnd:oData.sEnd };
 
         attachGCalendarsToScrappedResources(oResMap).then(function( o ){
-            return removeAlreadyCreatedEventsFromMap( oResMap );
+            return removeAlreadyCreatedEventsFromMap( oResMap, oEventDateRange );
         }).then(function(){
             return insertScrapedEventsToGCal( oResMap );
         }).done();
@@ -74,14 +75,49 @@ var acc = function(){
         return promise;
     }
     
-    function removeAlreadyCreatedEventsFromMap( oResMap ){
-        var deferred = Q.deferred();
+    function removeAlreadyCreatedEventsFromMap( oResMap, oEventDateRange ){
+        var deferred = Q.defer();
         deferred.reject("Unimplemented method.");
+        attachGCalEventsToScrappedResources( oResMap, oEventDateRange ).then(
+            function( value ){
+                oResMap;
+                debugger;
+                /*
+                 * summary
+                 * desctiption
+                 * start { dateTime }
+                 * end { dateTime }
+                 */
+            }
+        ).done();
         return deferred.promise;
+    }
+    
+    function attachGCalEventsToScrappedResources( oResMap, oEventDateRange ){
+        var events    = new gcal.Events(),
+            aPromises = [],
+            tmp       = null;
+
+        for( var sRes in oResMap ){
+            if( oResMap.hasOwnProperty(sRes) ){
+                !function(sRes){
+                    aPromises.push(events.list(oResMap[sRes].cle[0].id, {minTime:oEventDateRange.sStart, maxTime:oEventDateRange.sEnd}).then(
+                        function(evnts){
+                            console.log(evnts);
+                            oResMap[sRes].cle[0].events = evnts;
+                        },
+                        function( reason ){ console.log(reason); }
+                    ));
+                    events.execute();
+                }(sRes);
+            }
+        }
+
+        return Q.allSettled(aPromises);
     }
 
     function insertScrapedEventsToGCal( oResMap ){
-        var deferred = Q.deferred();
+        var deferred = Q.defer();
         deferred.reject("Unimplemented method.");
         return deferred.promise;
     }

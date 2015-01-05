@@ -2,6 +2,8 @@
 if( gcal === undefined ){ var gcal = {}; }
 
 !function(gcal){
+"use strict";
+
     function xhrWithAuth( method, url, interactive, oData, callback ){
         var access_token  = null,
             retry         = true,
@@ -282,6 +284,16 @@ if( gcal === undefined ){ var gcal = {}; }
             }
         },
     };
+
+    gcal.encodeParams = function( obj ){
+        var query = [];
+        for( var prop in obj ){
+            if( obj.hasOwnProperty(prop) ){
+                query.push( encodeURIComponent(prop) + "=" + encodeURIComponent(obj[prop]) );
+            }
+        }
+        return query.join('&');
+    }
 
     gcal.xhrWithAuth  = xhrWithAuth;
     gcal.xhrWithAuth2 = xhrWithAuth2;
