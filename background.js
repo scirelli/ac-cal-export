@@ -33,10 +33,13 @@ var acc = function(){
     function exportToGCal( oData ){
         var oResMap         = resGroupByCallSign(oData.aInst.concat(oData.aPlanes)),
             oEventDateRange = { nStart:oData.nStart, nEnd:oData.nEnd, sStart:oData.sStart, sEnd:oData.sEnd };
-
-        attachGCalendarsToScrappedResources(oResMap).then(function( o ){
-            return removeAlreadyCreatedEventsFromMap( oResMap, oEventDateRange );
-        }).then(function(){
+   
+        attachGCalendarsToScrappedResources(oResMap)
+          .then(function(o){
+            return attachGCalEventsToScrappedResources( oResMap, oEventDateRange );
+        }).then(function(o){
+            return removeAlreadyCreatedEventsFromMap( oResMap );
+        }).then(function(o){
             return insertScrapedEventsToGCal( oResMap );
         }).done();
     }
@@ -75,22 +78,27 @@ var acc = function(){
         return promise;
     }
     
-    function removeAlreadyCreatedEventsFromMap( oResMap, oEventDateRange ){
-        var deferred = Q.defer();
-        deferred.reject("Unimplemented method.");
-        attachGCalEventsToScrappedResources( oResMap, oEventDateRange ).then(
-            function( value ){
-                oResMap;
-                debugger;
-                /*
-                 * summary
-                 * desctiption
-                 * start { dateTime }
-                 * end { dateTime }
-                 */
+    function removeAlreadyCreatedEventsFromMap( oResMap ){
+        for( var sRes in oResMap ){
+            var gCalEventsMap = {};
+            if( oResMap.hasOwnProperty(sRes) ){
+                oResMap[sRes].cle[0].events.items.forEach(function( currentValue, index, array ){
+                    var key = currentValue.summary + currentValue.start.dateTime + currentValue.end.dateTime;
+                    gCalEventsMap[key] = true;
+                });
+                oResMap[sRes].events = oResMap[sRes].events.filter(function( element ){
+                    var key = element.booker + element.start + element.end;
+                    return gCalEventsMap[key] ? false : true;
+                });
             }
-        ).done();
-        return deferred.promise;
+        }
+        /*
+         * summary
+         * desctiption
+         * start { dateTime }
+         * end { dateTime }
+         */
+        return true;
     }
     
     function attachGCalEventsToScrappedResources( oResMap, oEventDateRange ){
@@ -117,9 +125,29 @@ var acc = function(){
     }
 
     function insertScrapedEventsToGCal( oResMap ){
-        var deferred = Q.defer();
-        deferred.reject("Unimplemented method.");
-        return deferred.promise;
+        var aPromises = [],
+            events    = new gcal.Events(),
+            aRes      = [];
+
+        debugger;
+        for( var sRes in oResMap ){
+            if( oResMap.hasOwnProperty(sRes) ){
+                aRes = oResMap[sRes].events;
+                aRes.forEach(function( element ){
+                    aPromises.push(events.insert( oResMap[sRes].cle[0].id, {
+                        summary:element.booker,
+                        start: new gcal.Event.Date({
+                            dateTime:element.start
+                        }),
+                        end: new gcal.Event.Date({
+                            dateTime:element.end
+                        })
+                    }));
+                });
+            }
+        }
+        events.execute();
+        return Q.allSettled(aPromises);
     }
 
     function resGroupByBooker( aoEvents ){
