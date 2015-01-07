@@ -21,7 +21,7 @@ chrome.runtime.onMessage.addListener(function( oResponse, sender, sendResponse) 
 
     //Group by booker
     if( oResponse.success ){
-        acc.export(oResponse.data);
+        acc.export( oResponse.data, sendResponse );
     }
     return true;
 });
@@ -30,7 +30,7 @@ chrome.runtime.onMessage.addListener(function( oResponse, sender, sendResponse) 
 var acc = function(){
     var tz = jstz.determine().name(); // Determines the time zone of the browser client
     
-    function exportToGCal( oData ){
+    function exportToGCal( oData, sendResponse ){
         var oResMap         = resGroupByCallSign(oData.aInst.concat(oData.aPlanes)),
             oEventDateRange = { nStart:oData.nStart, nEnd:oData.nEnd, sStart:oData.sStart, sEnd:oData.sEnd };
    
@@ -41,6 +41,13 @@ var acc = function(){
             return removeAlreadyCreatedEventsFromMap( oResMap );
         }).then(function(o){
             return insertScrapedEventsToGCal( oResMap );
+        }).then(function(o){
+        debugger;
+            sendResponse(true);
+            console.log(o);
+        },
+        function(o){
+            debugger;
         }).done();
     }
 
@@ -126,11 +133,10 @@ var acc = function(){
 
     function insertScrapedEventsToGCal( oResMap ){
         var aPromises = [],
-            events    = new gcal.Events(),
             aRes      = [];
 
-        debugger;
         for( var sRes in oResMap ){
+            var events = new gcal.Events();
             if( oResMap.hasOwnProperty(sRes) ){
                 aRes = oResMap[sRes].events;
                 aRes.forEach(function( element ){
@@ -145,8 +151,8 @@ var acc = function(){
                     }));
                 });
             }
+            events.execute();
         }
-        events.execute();
         return Q.allSettled(aPromises);
     }
 

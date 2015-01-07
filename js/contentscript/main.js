@@ -270,6 +270,8 @@ var acc = function( acc ){
                     msg = {success:true, data:data};
                 }
                 chrome.runtime.sendMessage( msg, function(response){
+                    debugger;
+                    alert('Events exported.');
                     console.log(response);
                 });
             }
