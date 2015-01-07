@@ -1,7 +1,7 @@
 // Called when the url of a tab changes.
 function checkForValidUrl(tabId, changeInfo, tab) {
   // If the letter 'g' is found in the tab's URL...
-  if (tab.url.indexOf('aircraftclubs.com') > -1) {
+  if (tab.url.indexOf('aircraftclubs.com/pages/view/reserve.php') > -1) {
     chrome.pageAction.setPopup({
         tabId:tabId,
         popup:'aircraftclubs_popup.html'
@@ -41,14 +41,21 @@ var acc = function(){
             return removeAlreadyCreatedEventsFromMap( oResMap );
         }).then(function(o){
             return insertScrapedEventsToGCal( oResMap );
-        }).then(function(o){
-        debugger;
-            sendResponse(true);
-            console.log(o);
-        },
-        function(o){
-            debugger;
-        }).done();
+        }).then(
+            function(aPromises){
+                for( var i=0,l=aPromises.length; i<l; i++ ){
+                    if( aPromises[i].state !== "fulfilled" ){
+                        sendResponse(false);
+                        return;
+                    }
+                }
+                sendResponse(true);
+            },
+            function rejected(o){
+                sendResponse(false);
+                console.log(o);
+            }
+        ).done();
     }
 
     function attachGCalendarsToScrappedResources( oResMap ){
@@ -90,11 +97,11 @@ var acc = function(){
             var gCalEventsMap = {};
             if( oResMap.hasOwnProperty(sRes) ){
                 oResMap[sRes].cle[0].events.items.forEach(function( currentValue, index, array ){
-                    var key = currentValue.summary + currentValue.start.dateTime + currentValue.end.dateTime;
+                    var key = currentValue.summary + (new Date(currentValue.start.dateTime)).getTime() + "" + (new Date(currentValue.end.dateTime)).getTime();
                     gCalEventsMap[key] = true;
                 });
                 oResMap[sRes].events = oResMap[sRes].events.filter(function( element ){
-                    var key = element.booker + element.start + element.end;
+                    var key = element.booker + (new Date(element.start)).getTime() + "" + (new Date(element.end)).getTime();
                     return gCalEventsMap[key] ? false : true;
                 });
             }
@@ -148,6 +155,11 @@ var acc = function(){
                         end: new gcal.Event.Date({
                             dateTime:element.end
                         })
+                        /*,
+                        gadget:{
+                            iconLink:element.iconLink
+                        }
+                        */
                     }));
                 });
             }
@@ -173,8 +185,14 @@ var acc = function(){
         var oMap = {};
         for( var i=0,l=aResouces.length,itm=null,res={}; i<l; i++ ){
             itm = aResouces[i];
-            if( itm.oInstructor ) res = itm.oInstructor;
-            if( itm.oAircraft ) res = itm.oAircraft;
+
+            if( itm.oInstructor ){ 
+                res = itm.oInstructor
+            }else if( itm.oAircraft ){
+                res = itm.oAircraft;
+            }else{
+                continue;
+            }
 
             if( oMap.hasOwnProperty( res.callSign ) ){
                 oMap[res.callSign].events.push( itm );

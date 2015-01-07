@@ -40,7 +40,7 @@
     "content_scripts": [
         {
             "matches": [
-                "*://*.aircraftclubs.com/pages/view/*"
+                "*://*.aircraftclubs.com/pages/view/reserve*"
             ],
             "js": [
                 "js/lib/q.js",
@@ -65,8 +65,6 @@
         "*://*.aircraftclubs.com/*",
         "*://apis.google.com/*",
         "*://www.googleapis.com/*",
-        "unlimitedStorage",
-        "storage",
          "identity"
     ],
     "content_security_policy": "script-src 'self' https://apis.google.com https://oauth.googleusercontent.com https://accounts.google.com https://ssl.gstatic.com https://www.googleapis.com; object-src 'self'"

@@ -43,12 +43,13 @@ var acc = function( acc ){
                 if( txt.length && txt.length >= 3 ){
                     name       = txt[0].trim();
                     callSign   = txt[2].trim();
-                }else if( txt.length && txt.length >= 2 ){
+                    if( callSign.length <= 0 ) callSign = name;
+                }else if( txt.length && txt.length >= 1 ){
                     name       = txt[0].trim();
-                    callSign   = '';
+                    callSign   = txt[0].trim();
                 }else{
-                    name       = '';
-                    callSign   = '';
+                    name       = 'No name';
+                    callSign   = 'No callsign';
                 }
                 oList[id] = {
                     id:opt.value,
@@ -181,8 +182,8 @@ var acc = function( acc ){
 
                         span.innerHTML = itm.title;
 
-                        booker     = span.querySelector('.bookingPilot');
-                        booker     = booker ? booker.innerText : '';
+                        booker      = span.querySelector('.bookingPilot');
+                        booker      = booker ? booker.innerText.trim() : '';
                         bPlane      = span.querySelector('.airplane') ? true : false;
                         bInstructor = span.querySelector('.headset')? true : false;
                         
@@ -202,7 +203,8 @@ var acc = function( acc ){
                                 sInstructorId:sInstructorId,
                                 oInstructor:oInstructors[sInstructorId],
                                 sEquipmentId:sEquipmentId,
-                                oEquipment:oEquipment[sEquipmentId]
+                                oEquipment:oEquipment[sEquipmentId],
+                                iconLink:"https://camo.githubusercontent.com/b170700f4b5f5f92b6132cbfdcb3c86ded5297d3/68747470733a2f2f662e636c6f75642e6769746875622e636f6d2f6173736574732f333533323333392f3534373030382f64613536656632342d633262342d313165322d386339362d6436306634313232663534372e706e67"//"http://png-2.findicons.com/files/icons/949/token/16/headphones.png"
                             });
                         }
                         if( bPlane ){
@@ -218,7 +220,8 @@ var acc = function( acc ){
                                 sAircraftId:sAircraftId,
                                 oAircraft:oPlanes[sAircraftId],
                                 sEquipmentId:sEquipmentId,
-                                oEquipment:oEquipment[sEquipmentId]
+                                oEquipment:oEquipment[sEquipmentId],
+                                iconLink:"https://www.calcsea.org/Portals/0/Images/icons/menu-icons/plane_16.png"//"http://www.clker.com/cliparts/d/4/1/9/12085303581252277725SABROG_Boing_plane_icon.svg"//"https://cdn2.iconfinder.com/data/icons/picol-vector/32/transportation_plane-128.png"
                             });
                         }
                     }
@@ -251,7 +254,7 @@ var acc = function( acc ){
         var sAircraftId   = ePlanes.value || 0,
             sInstructorId = eInstructors.value || 0,
             sEquipmentId  = eEquipment.value || 0;
-        
+        setLoading(true); 
         scrapeNew( sAircraftId, sInstructorId, sEquipmentId ).then(
             amendScrape,
             function( reject ){
@@ -269,9 +272,14 @@ var acc = function( acc ){
                 }else{
                     msg = {success:true, data:data};
                 }
+                setLoading(true);
                 chrome.runtime.sendMessage( msg, function(response){
-                    debugger;
-                    alert('Events exported.');
+                    setLoading(false);
+                    if( response === true ){
+                        alert('Events exported.');
+                    }else{
+                        alert('Error: Some or all of the events were not exported.');
+                    }
                     console.log(response);
                 });
             }
@@ -308,6 +316,18 @@ var acc = function( acc ){
         a.style.color = 'red';
         document.body.querySelector('.boxHeader span').appendChild(a);
     };
+    
+    function setLoading( bLoading ){
+        var div = document.getElementById('exportCalViewAction');
+
+        if( bLoading ){
+            div.innerHTML = '<img src="../../images/ajax_loader_large.gif" width="32" style="width:32px; height:32px; margin-top:3px;" alt="Loading...">';
+            div.removeEventListener('click',startScrape);
+        }else{
+            div.innerHTML = '<span class="glyphicons calendar" style="font-size:20px;color:#444;padding-bottom:3px"></span><br>Calendar Export';
+           div.addEventListener( 'click', startScrape );
+        }
+    }
 
     return {
         insertQuickLinkCalIcon:insertQuickLinkCalIcon,
