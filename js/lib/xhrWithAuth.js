@@ -81,7 +81,6 @@ if( gcal === undefined ){ var gcal = {}; }
         function getToken() {
             chrome.identity.getAuthToken({ interactive: interactive }, function(token) {
                 if (chrome.runtime.lastError) {
-                    callback(chrome.runtime.lastError);
                     deferred.reject(chrome.runtime.lastError); 
                     return;
                 }
