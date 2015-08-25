@@ -205,16 +205,17 @@ var acc = function( acc ){
 
                 if( response.status == '200' ){
                     data = JSON.parse(response.responseText);
-                    for( var i=0,l=data.length,itm=null,span=document.createElement('span'),booker='',bPlane=false,bInstructor=false,dStart=null,dEnd=null; i<l; i++ ){
+                    for( var i=0,l=data.length,itm=null,span=document.createElement('span'),booker='',bPlane=false,bInstructor=false,dStart=null,dEnd=null,bMaint=false; i<l; i++ ){
                         itm = data[i];
 
                         span.innerHTML = itm.title;
 
                         booker      = span.querySelector('.bookingPilot');
                         booker      = booker ? booker.innerText.trim() : '';
+                        bMaint      = span.querySelector('.settings') ? true : false;
                         bPlane      = span.querySelector('.airplane') ? true : false;
-                        bInstructor = span.querySelector('.headset')? true : false;
-                        
+                        bInstructor = span.querySelector('.headset')  ? true : false;
+                         
                         dStart = new Date(itm.start);
                         dEnd   = new Date(itm.end);
                         
@@ -228,6 +229,7 @@ var acc = function( acc ){
                                 booker:booker,
                                 bPlane:bPlane,
                                 bInstructor:bInstructor,
+                                bMaint:bMaint,
                                 sInstructorId:sInstructorId,
                                 oInstructor:oInstructors[sInstructorId],
                                 sEquipmentId:sEquipmentId,
@@ -235,7 +237,7 @@ var acc = function( acc ){
                                 iconLink:"https://camo.githubusercontent.com/b170700f4b5f5f92b6132cbfdcb3c86ded5297d3/68747470733a2f2f662e636c6f75642e6769746875622e636f6d2f6173736574732f333533323333392f3534373030382f64613536656632342d633262342d313165322d386339362d6436306634313232663534372e706e67"//"http://png-2.findicons.com/files/icons/949/token/16/headphones.png"
                             });
                         }
-                        if( bPlane ){
+                        if( bPlane || bMaint ){
                             aPlanes.push({
                                 dStart: dStart, // Keeping them for sorting purposes. 
                                 dEnd:   dEnd,
@@ -245,6 +247,7 @@ var acc = function( acc ){
                                 booker:booker,
                                 bPlane:bPlane,
                                 bInstructor:bInstructor,
+                                bMaint:bMaint,
                                 sAircraftId:sAircraftId,
                                 oAircraft:oPlanes[sAircraftId],
                                 sEquipmentId:sEquipmentId,
