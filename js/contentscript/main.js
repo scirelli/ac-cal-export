@@ -166,7 +166,7 @@ var acc = function( acc ){
             instructor:sInstructorId,
             equipment:sEquipmentId,
             date:dDate.getTime(),
-            start:Math.round(nStart/1000),
+            start:Math.round(nStart/1000), //They are using php which uses seconds. JS uses ms.
             end:Math.round(nEnd/1000)
         })).then(
             function( response ){
@@ -196,7 +196,7 @@ var acc = function( acc ){
                                 dEnd:   dEnd,
                                 start:  dStart.toISOString(),
                                 end:    dEnd.toISOString(),
-                                id:     itm.id,
+                                bookingID:     itm.id,
                                 booker:booker,
                                 bPlane:bPlane,
                                 bInstructor:bInstructor,
@@ -213,7 +213,7 @@ var acc = function( acc ){
                                 dEnd:   dEnd,
                                 start:  dStart.toISOString(),
                                 end:    dEnd.toISOString(),
-                                id:     itm.id,
+                                bookingID: itm.id,
                                 booker:booker,
                                 bPlane:bPlane,
                                 bInstructor:bInstructor,
