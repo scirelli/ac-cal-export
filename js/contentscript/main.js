@@ -5,7 +5,9 @@ var acc = function( acc ){
         oEquipment   = {},
         ePlanes      = document.getElementById('aircraftSelect'),
         eInstructors = document.getElementById('instructorSelect'),
-        eEquipment   = document.getElementById('equipmentSelect');
+        eEquipment   = document.getElementById('equipmentSelect'),
+        dCurCalMonth = new Date(),
+        sExportCalId = 'exportCalViewAction';
    
     function buildPlaneListFromSelectBox( oSelectBoxElm, oList ){
         var aOpts = oSelectBoxElm.querySelectorAll('option');
@@ -127,14 +129,40 @@ var acc = function( acc ){
         //console.log(oResource);
         return oResource;
     };
+    
+    //Returns two dates. One is the start of the month. The other is the end.
+    //this function adds "padding" for calendars that show the first and last few days of the prev and next month
+    function getDateRangeForCalExport( dDate ){
+        var dStart = new Date(dDate).moveToFirstDayOfMonth().clearTime(),
+            dEnd   = new Date(dDate).moveToLastDayOfMonth().clearTime();
 
-    function scrapeNew( sAircraftId, sInstructorId, sEquipmentId ){
+        dStart.add(-dStart.getDay()).day();
+        dEnd.add(6 - dEnd.getDay()).day();
+        return {
+            dStart:dStart,
+            dEnd:dEnd
+        }
+    }
+    //Save as getDateRangeForCalExport but without padding
+    function getDateRangeForCalExportNoPad( dDate ){
+        var dStart = new Date(dDate).moveToFirstDayOfMonth().clearTime(),
+            dEnd   = new Date(dDate).moveToLastDayOfMonth().clearTime();
+
+        dEnd.add(1).day();
+        return {
+            dStart:dStart,
+            dEnd:dEnd
+        }
+    }
+
+    function scrapeNew( sAircraftId, sInstructorId, sEquipmentId, dDate ){
         var url         = 'https://www.aircraftclubs.com/functions/booking/getBookingsForCalendar.php?p=&a={{aircraft}}&i={{instructor}}&e={{equipment}}&f=a&start={{start}}&end={{end}}&_={{date}}',
-            dDate       = new Date(),
-            nStart      = dDate.moveToFirstDayOfMonth().clearTime().getTime(),
-            sStart      = dDate.toISOString(),
-            nEnd        = dDate.moveToLastDayOfMonth().clearTime().add(1).day().getTime(),
-            sEnd        = dDate.toISOString();
+            dDate       = dDate || new Date(),
+            dTmp        = getDateRangeForCalExport(dDate),
+            nStart      = dTmp.dStart.getTime(),
+            sStart      = dTmp.dStart.toISOString(),
+            nEnd        = dTmp.dEnd.getTime(),
+            sEnd        = dTmp.dEnd.toISOString();
 
         sAircraftId   = sAircraftId   || 0;
         sInstructorId = sInstructorId || 0;
@@ -177,16 +205,17 @@ var acc = function( acc ){
 
                 if( response.status == '200' ){
                     data = JSON.parse(response.responseText);
-                    for( var i=0,l=data.length,itm=null,span=document.createElement('span'),booker='',bPlane=false,bInstructor=false,dStart=null,dEnd=null; i<l; i++ ){
+                    for( var i=0,l=data.length,itm=null,span=document.createElement('span'),booker='',bPlane=false,bInstructor=false,dStart=null,dEnd=null,bMaint=false; i<l; i++ ){
                         itm = data[i];
 
                         span.innerHTML = itm.title;
 
                         booker      = span.querySelector('.bookingPilot');
                         booker      = booker ? booker.innerText.trim() : '';
+                        bMaint      = span.querySelector('.settings') ? true : false;
                         bPlane      = span.querySelector('.airplane') ? true : false;
-                        bInstructor = span.querySelector('.headset')? true : false;
-                        
+                        bInstructor = span.querySelector('.headset')  ? true : false;
+                         
                         dStart = new Date(itm.start);
                         dEnd   = new Date(itm.end);
                         
@@ -200,6 +229,7 @@ var acc = function( acc ){
                                 booker:booker,
                                 bPlane:bPlane,
                                 bInstructor:bInstructor,
+                                bMaint:bMaint,
                                 sInstructorId:sInstructorId,
                                 oInstructor:oInstructors[sInstructorId],
                                 sEquipmentId:sEquipmentId,
@@ -207,7 +237,7 @@ var acc = function( acc ){
                                 iconLink:"https://camo.githubusercontent.com/b170700f4b5f5f92b6132cbfdcb3c86ded5297d3/68747470733a2f2f662e636c6f75642e6769746875622e636f6d2f6173736574732f333533323333392f3534373030382f64613536656632342d633262342d313165322d386339362d6436306634313232663534372e706e67"//"http://png-2.findicons.com/files/icons/949/token/16/headphones.png"
                             });
                         }
-                        if( bPlane ){
+                        if( bPlane || bMaint ){
                             aPlanes.push({
                                 dStart: dStart, // Keeping them for sorting purposes. 
                                 dEnd:   dEnd,
@@ -217,6 +247,7 @@ var acc = function( acc ){
                                 booker:booker,
                                 bPlane:bPlane,
                                 bInstructor:bInstructor,
+                                bMaint:bMaint,
                                 sAircraftId:sAircraftId,
                                 oAircraft:oPlanes[sAircraftId],
                                 sEquipmentId:sEquipmentId,
@@ -255,7 +286,7 @@ var acc = function( acc ){
             sInstructorId = eInstructors.value || 0,
             sEquipmentId  = eEquipment.value || 0;
         setLoading(true); 
-        scrapeNew( sAircraftId, sInstructorId, sEquipmentId ).then(
+        scrapeNew( sAircraftId, sInstructorId, sEquipmentId, dCurCalMonth ).then(
             amendScrape,
             function( reject ){
                 console.log('rejected.');
@@ -292,7 +323,7 @@ var acc = function( acc ){
         var div = document.createElement('div');
         div.innerHTML = '<span class="glyphicons calendar" style="font-size:20px;color:#444;padding-bottom:3px"></span><br>Calendar Export';
         
-        div.id = 'exportCalViewAction';
+        div.id = sExportCalId;
         div.classList.add('yourActionsItem');
         div.classList.add('selected');
         div.style.float = 'left';
@@ -328,16 +359,57 @@ var acc = function( acc ){
            div.addEventListener( 'click', startScrape );
         }
     }
+    
+    function getACCalDisplayedMonth(){
+        return new Date(document.querySelector('span.fc-header-title h2').innerText);
+    }
+    
+    function attachCalIconEvent(){
+        document.getElementById(sExportCalId).addEventListener( 'click', startScrape );
+    }
+    function updateCurCalMonth(){
+        dCurCalMonth = getACCalDisplayedMonth();
+    }
+    
+    function attachClickEventForCurCalMonthUpdate( sSelector ){
+        var e = document.querySelector( sSelector );
+        if( e && e.addEventListener ){
+            e.addEventListener('click',function(){
+                updateCurCalMonth();
+            });
+        }else{
+            setTimeout( function(){
+                attachClickEventForCurCalMonthUpdate( sSelector );
+            },1000);
+        }
+    }
+    function attachNextMonth(){
+        attachClickEventForCurCalMonthUpdate('.fc-button-next');
+    }
+    function attachPrevMonth(){
+        attachClickEventForCurCalMonthUpdate('.fc-button-prev');
+    }
+    function attachToday(){
+        attachClickEventForCurCalMonthUpdate('.fc-button-today');
+    }
+    //For attching events to AC clubs elements
+    function attachEvents(){
+        attachNextMonth();
+        attachPrevMonth();
+        attachToday();
+    }
 
     return {
         insertQuickLinkCalIcon:insertQuickLinkCalIcon,
         insertToolbarCalIcon:insertToolbarCalIcon,
-        buildLists:buildLists
+        buildLists:buildLists,
+        attachEvents:attachEvents
     };
 }( acc );
 
 //Start
 acc.insertToolbarCalIcon();
+acc.attachEvents();
 acc.buildLists();
 
 /*   Not used
