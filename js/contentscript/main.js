@@ -395,11 +395,12 @@ var acc = function( acc ){
 
     function changeView( selector, to ){
         document.querySelector(selector).addEventListener('click', function(e){
-            $('#theCalendar').fullCalendar('changeView',to);
+            var $cal = $('#theCalendar');
+            $cal.fullCalendar('changeView',to);// .fc-state-active
         });
     }
     function agendaWeekClickEvent(){
-        changeView('fc-agendaWeek-button','agendaWeek');
+        changeView('.fc-agendaWeek-button','agendaWeek');
     }
     function monthClickEvent(){
         changeView('.fc-month-button','month');
@@ -420,7 +421,7 @@ var acc = function( acc ){
     }
     function insertExtraViewButtons(){
         $(document.querySelector('.fc-header-right')).append(
-            '<button type="button" class="fc-month-button fc-button fc-state-default fc-corner-left fc-state-active" style="margin-left:5px">month</button>'+
+            '<button type="button" class="fc-month-button fc-button fc-state-default fc-corner-left" style="margin-left:5px">month</button>'+
             '<button type="button" class="fc-agendaWeek-button fc-button fc-state-default">week</button>'+
             '<button type="button" class="fc-agendaDay-button fc-button fc-state-default fc-corner-right">day</button>'
         );
