@@ -392,55 +392,25 @@ var acc = function( acc ){
     function attachToday(){
         attachClickEventForCurCalMonthUpdate('.fc-button-today');
     }
-
-    function changeView( selector, to ){
-        document.querySelector(selector).addEventListener('click', function(e){
-            $('#theCalendar').fullCalendar('changeView',to);
-        });
-    }
-    function agendaWeekClickEvent(){
-        changeView('fc-agendaWeek-button','agendaWeek');
-    }
-    function monthClickEvent(){
-        changeView('.fc-month-button','month');
-    }
-    function agendaDayClickEvent(){
-        changeView('.fc-agendaDay-button','agendaDay');
-    }
-
     //For attching events to AC clubs elements
     function attachEvents(){
         attachNextMonth();
         attachPrevMonth();
         attachToday();
-
-        agendaWeekClickEvent();
-        monthClickEvent();
-        agendaDayClickEvent();
-    }
-    function insertExtraViewButtons(){
-        $(document.querySelector('.fc-header-right')).append(
-            '<button type="button" class="fc-month-button fc-button fc-state-default fc-corner-left fc-state-active" style="margin-left:5px">month</button>'+
-            '<button type="button" class="fc-agendaWeek-button fc-button fc-state-default">week</button>'+
-            '<button type="button" class="fc-agendaDay-button fc-button fc-state-default fc-corner-right">day</button>'
-        );
     }
 
     return {
         insertQuickLinkCalIcon:insertQuickLinkCalIcon,
         insertToolbarCalIcon:insertToolbarCalIcon,
         buildLists:buildLists,
-        attachEvents:attachEvents,
-        insertExtraViewButtons:insertExtraViewButtons
+        attachEvents:attachEvents
     };
 }( acc );
 
 //Start
 acc.insertToolbarCalIcon();
-acc.insertExtraViewButtons();
 acc.attachEvents();
 acc.buildLists();
-
 
 /*   Not used
 chrome.extension.onMessage.addListener( function(request, sender, sendResponse ){
