@@ -441,12 +441,14 @@ var acc = function( acc ){
         insertQuickLinkCalIcon:insertQuickLinkCalIcon,
         insertToolbarCalIcon:insertToolbarCalIcon,
         buildLists:buildLists,
-        attachEvents:attachEvents
+        attachEvents:attachEvents,
+        insertExtraViewButtons:insertExtraViewButtons
     };
 }( acc );
 
 //Start
 acc.insertToolbarCalIcon();
+acc.insertExtraViewButtons();
 acc.attachEvents();
 acc.buildLists();
 
