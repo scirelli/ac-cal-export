@@ -393,22 +393,28 @@ var acc = function( acc ){
         attachClickEventForCurCalMonthUpdate('.fc-button-today');
     }
 
-    function changeView( selector, to ){
-        document.querySelector(selector).addEventListener('click', function(e){
-            var $cal = $('#theCalendar');
-            chrome.runtime.sendMessage( { setcookie:true, name:'fullcalendar_defaultView', value:to, path:'/pages/view' }, function(response){
-                window.location.reload();
+    function addChangeViewEvent( selector, to ){
+        var element = document.querySelector(selector);
+        if( element ){
+            element.addEventListener('click', function(e){
+                chrome.runtime.sendMessage( { setcookie:true, name:'fullcalendar_defaultView', value:to, path:'/pages/view' }, function(response){
+                    window.location.reload();
+                });
             });
-        });
+        }else{//One of the views were not found. So try re-adding them.
+            setTimeout(function(){
+                changeView(selector, to);
+            },2000);
+        }
     }
-    function agendaWeekClickEvent(){
-        changeView('.fc-agendaWeek-button','agendaWeek');
+    function attachAgendaWeekClickEvent(){
+        addChangeViewEvent('.fc-agendaWeek-button','agendaWeek');
     }
-    function monthClickEvent(){
-        changeView('.fc-month-button','month');
+    function attachMonthClickEvent(){
+        addChangeViewEvent('.fc-month-button','month');
     }
-    function agendaDayClickEvent(){
-        changeView('.fc-agendaDay-button','agendaDay');
+    function attachAgendaDayClickEvent(){
+        addChangeViewEvent('.fc-agendaDay-button','agendaDay');
     }
 
     //For attching events to AC clubs elements
@@ -416,10 +422,6 @@ var acc = function( acc ){
         attachNextMonth();
         attachPrevMonth();
         attachToday();
-
-        agendaWeekClickEvent();
-        monthClickEvent();
-        agendaDayClickEvent();
     }
     function insertExtraViewButtons(){
         $(document.querySelector('.fc-header-right')).append(
@@ -427,6 +429,16 @@ var acc = function( acc ){
             '<button type="button" class="fc-agendaWeek-button fc-button fc-state-default">week</button>'+
             '<button type="button" class="fc-agendaDay-button fc-button fc-state-default fc-corner-right">day</button>'
         );
+        attachAgendaWeekClickEvent();
+        attachMonthClickEvent();
+        attachAgendaDayClickEvent();
+
+        setTimeout(function(){
+            var $buttons = $('.fc-month-button,.fc-agendaWeek-button,.fc-agendaDay-button');
+            if( !$buttons || $buttons.length == 0 ){
+                insertExtraViewButtons();
+            }
+        },1000);
     }
 
     return {
