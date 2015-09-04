@@ -399,6 +399,44 @@ var acc = function( acc ){
         attachToday();
     }
 
+    function addChangeViewEvent( selector, to ){
+        var element = document.querySelector(selector);
+        if( element ){
+            element.addEventListener('click', function(e){
+                chrome.runtime.sendMessage( { setcookie:true, name:'fullcalendar_defaultView', value:to, path:'/pages/view' }, function(response){
+                    window.location.reload();
+                });
+            });
+        }
+    }
+    function attachAgendaWeekClickEvent(){
+        addChangeViewEvent('.fc-agendaWeek-button','agendaWeek');
+    }
+    function attachMonthClickEvent(){
+        addChangeViewEvent('.fc-month-button','month');
+    }
+    function attachAgendaDayClickEvent(){
+        addChangeViewEvent('.fc-agendaDay-button','agendaDay');
+    }
+
+    function insertExtraViewButtons(){
+        $(document.querySelector('.fc-header-right')).append(
+            '<button type="button" class="fc-month-button fc-button fc-state-default fc-corner-left" style="margin-left:5px">month</button>'+
+            '<button type="button" class="fc-agendaWeek-button fc-button fc-state-default">week</button>'+
+            '<button type="button" class="fc-agendaDay-button fc-button fc-state-default fc-corner-right">day</button>'
+        );
+        attachAgendaWeekClickEvent();
+        attachMonthClickEvent();
+        attachAgendaDayClickEvent();
+
+        setTimeout(function(){
+            var $buttons = $('.fc-month-button,.fc-agendaWeek-button,.fc-agendaDay-button');
+            if( !$buttons || $buttons.length == 0 ){
+                insertExtraViewButtons();
+            }
+        },1000);
+    }
+
     return {
         insertQuickLinkCalIcon:insertQuickLinkCalIcon,
         insertToolbarCalIcon:insertToolbarCalIcon,
