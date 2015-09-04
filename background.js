@@ -18,13 +18,31 @@ chrome.runtime.onMessage.addListener(function( oResponse, sender, sendResponse) 
     //console.log(sender.tab ?  "from a content script:" + sender.tab.url : "from the extension");
     console.log("Scraped: ");
     console.log(oResponse);
-
+    
     //Group by booker
     if( oResponse.success ){
         acc.export( oResponse.data, sendResponse );
+    }else if( oResponse.setcookie ){
+        chrome.cookies.set(
+            {
+                url:'https://www.aircraftclubs.com',
+                name:oResponse.name,
+                value:oResponse.value,
+                path:oResponse.path || undefined 
+            }, 
+            function(cookie){ 
+                sendResponse({cookie:cookie});
+            }
+        );
     }
     return true;
 });
+
+/*
+chrome.cookies.onChanged.addListener(function(info) {
+  console.log("onChanged" + JSON.stringify(info));
+});
+*/
 
 //Name space for this app
 var acc = function(){

@@ -396,7 +396,9 @@ var acc = function( acc ){
     function changeView( selector, to ){
         document.querySelector(selector).addEventListener('click', function(e){
             var $cal = $('#theCalendar');
-            $cal.fullCalendar('changeView',to);// .fc-state-active
+            chrome.runtime.sendMessage( { setcookie:true, name:'fullcalendar_defaultView', value:to, path:'/pages/view' }, function(response){
+                window.location.reload();
+            });
         });
     }
     function agendaWeekClickEvent(){
@@ -441,7 +443,6 @@ acc.insertToolbarCalIcon();
 acc.insertExtraViewButtons();
 acc.attachEvents();
 acc.buildLists();
-
 
 /*   Not used
 chrome.extension.onMessage.addListener( function(request, sender, sendResponse ){
